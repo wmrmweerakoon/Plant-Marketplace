@@ -7,7 +7,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import PaymentForm from '../components/PaymentForm';
 
 // Load Stripe with your publishable key
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_stripe_publishable_key_here'); // Replace with your actual key
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_stripe_publishable_key_here'); // Replace with your actual key
 
 const Checkout = () => {
   const { cart, getTotalPrice, clearCart } = useCart();

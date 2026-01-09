@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-const SellerDashboard = () => {
+const SellerDashboard = ({ setHideNavbar }) => {
   const [activeTab, setActiveTab] = useState('listings'); // listings or sales
   const [plants, setPlants] = useState([]);
   const [orders, setOrders] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentPlantId, setCurrentPlantId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,6 +31,13 @@ const SellerDashboard = () => {
     notes: ''
   });
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    // Notify parent component to hide navbar when any modal is open
+    if (setHideNavbar) {
+      setHideNavbar(isModalOpen || showTrackingModal);
+    }
+  }, [isModalOpen, showTrackingModal, setHideNavbar]);
 
   const navigate = useNavigate();
 
@@ -480,7 +488,7 @@ const SellerDashboard = () => {
             <div className="flex items-center space-x-3 mb-2">
               <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-gray-900">Sales This Month</h3>
@@ -497,7 +505,7 @@ const SellerDashboard = () => {
             <div className="flex items-center space-x-3 mb-2">
               <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-gray-900">Active Listings</h3>
@@ -776,148 +784,155 @@ const SellerDashboard = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+              className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center p-4 z-50 pt-16"
               onClick={() => setIsModalOpen(false)}
             >
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl w-full max-w-md p-6 border border-white/50"
+                className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-md p-6 border border-white/50"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-gray-200/50">
+                  <div className="h-12 w-12 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900">{isEditing ? 'Edit Plant' : 'Add New Plant'}</h3>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">{isEditing ? 'Edit Plant' : 'Add New Plant'}</h3>
+                    <p className="text-sm text-gray-600">{isEditing ? 'Update your plant details' : 'Add a new plant to your store'}</p>
+                  </div>
                 </div>
                 
-                <form onSubmit={isEditing ? handleUpdate : handleSubmit}>
+                <form onSubmit={isEditing ? handleUpdate : handleSubmit} className="space-y-5">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Plant Name</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Plant Name</label>
                       <input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-lg ${
+                        className={`w-full px-4 py-3 border rounded-xl ${
                           errors.name ? 'border-red-500' : 'border-gray-300'
-                        } bg-white/50`}
+                        } bg-white/70 backdrop-blur-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200`}
                         placeholder="Enter plant name"
                       />
-                      {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                      {errors.name && <p className="text-red-500 text-xs mt-1 pl-1">{errors.name}</p>}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <select
+                          name="category"
+                          value={formData.category}
+                          onChange={handleInputChange}
+                          className={`w-full px-4 py-3 border rounded-xl ${
+                            errors.category ? 'border-red-500' : 'border-gray-300'
+                          } bg-white/70 backdrop-blur-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200`}
+                        >
+                          <option value="Vegetable">Vegetable</option>
+                          <option value="Flower">Flower</option>
+                          <option value="Medicinal">Medicinal</option>
+                        </select>
+                        {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Care Level</label>
+                        <select
+                          name="careLevel"
+                          value={formData.careLevel}
+                          onChange={handleInputChange}
+                          className={`w-full px-4 py-3 border rounded-xl ${
+                            errors.careLevel ? 'border-red-500' : 'border-gray-300'
+                          } bg-white/70 backdrop-blur-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200`}
+                        >
+                          <option value="Easy">Easy</option>
+                          <option value="Medium">Medium</option>
+                          <option value="Hard">Hard</option>
+                        </select>
+                        {errors.careLevel && <p className="text-red-500 text-xs mt-1">{errors.careLevel}</p>}
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Price ($)</label>
+                        <input
+                          type="number"
+                          name="price"
+                          value={formData.price}
+                          onChange={handleInputChange}
+                          min="0"
+                          step="0.01"
+                          className={`w-full px-4 py-3 border rounded-xl ${
+                            errors.price ? 'border-red-500' : 'border-gray-300'
+                          } bg-white/70 backdrop-blur-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200`}
+                          placeholder="0.00"
+                        />
+                        {errors.price && <p className="text-red-500 text-xs mt-1 pl-1">{errors.price}</p>}
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Stock</label>
+                        <input
+                          type="number"
+                          name="stock"
+                          value={formData.stock}
+                          onChange={handleInputChange}
+                          min="0"
+                          className={`w-full px-4 py-3 border rounded-xl ${
+                            errors.stock ? 'border-red-500' : 'border-gray-300'
+                          } bg-white/70 backdrop-blur-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200`}
+                          placeholder="0"
+                        />
+                        {errors.stock && <p className="text-red-500 text-xs mt-1 pl-1">{errors.stock}</p>}
+                      </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                      <select
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-lg ${
-                          errors.category ? 'border-red-500' : 'border-gray-300'
-                        } bg-white/50`}
-                      >
-                        <option value="Vegetable">Vegetable</option>
-                        <option value="Flower">Flower</option>
-                        <option value="Medicinal">Medicinal</option>
-                      </select>
-                      {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-                      <input
-                        type="number"
-                        name="price"
-                        value={formData.price}
-                        onChange={handleInputChange}
-                        min="0"
-                        step="0.01"
-                        className={`w-full px-3 py-2 border rounded-lg ${
-                          errors.price ? 'border-red-500' : 'border-gray-300'
-                        } bg-white/50`}
-                        placeholder="0.00"
-                      />
-                      {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
-                      <input
-                        type="number"
-                        name="stock"
-                        value={formData.stock}
-                        onChange={handleInputChange}
-                        min="0"
-                        className={`w-full px-3 py-2 border rounded-lg ${
-                          errors.stock ? 'border-red-500' : 'border-gray-300'
-                        } bg-white/50`}
-                        placeholder="0"
-                      />
-                      {errors.stock && <p className="text-red-500 text-xs mt-1">{errors.stock}</p>}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Care Level</label>
-                      <select
-                        name="careLevel"
-                        value={formData.careLevel}
-                        onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-lg ${
-                          errors.careLevel ? 'border-red-500' : 'border-gray-300'
-                        } bg-white/50`}
-                      >
-                        <option value="Easy">Easy</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Hard">Hard</option>
-                      </select>
-                      {errors.careLevel && <p className="text-red-500 text-xs mt-1">{errors.careLevel}</p>}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Upload Image</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Image</label>
                       <input
                         type="file"
                         name="image"
                         accept="image/*"
                         onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/50"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/70 backdrop-blur-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition-all duration-200"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Upload a plant image (JPG, PNG)</p>
+                      <p className="text-xs text-gray-500 mt-2">Upload a plant image (JPG, PNG)</p>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
                       <textarea
                         name="description"
                         value={formData.description}
                         onChange={handleInputChange}
                         rows="3"
-                        className={`w-full px-3 py-2 border rounded-lg ${
+                        className={`w-full px-4 py-3 border rounded-xl ${
                           errors.description ? 'border-red-500' : 'border-gray-300'
-                        } bg-white/50`}
+                        } bg-white/70 backdrop-blur-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none`}
                         placeholder="Enter plant description"
                       ></textarea>
-                      {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                      {errors.description && <p className="text-red-500 text-xs mt-1 pl-1">{errors.description}</p>}
                     </div>
                   </div>
                   
-                  <div className="mt-6 flex justify-end space-x-3">
+                  <div className="pt-6 flex justify-end space-x-3 border-t border-gray-200/50">
                     <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                      className="px-5 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md"
+                      className="px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md font-medium"
                     >
                       {isEditing ? 'Update Plant' : 'Add Plant'}
                     </button>
@@ -1015,7 +1030,6 @@ const SellerDashboard = () => {
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md"
                     >
                       Update Tracking
                     </button>

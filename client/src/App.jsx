@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -13,8 +13,10 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import MyOrders from './pages/MyOrders';
 
-function App() {
+function AppContent() {
   const [darkMode, setDarkMode] = useState(false);
+  const [hideNavbar, setHideNavbar] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     // Check for saved theme preference
@@ -42,19 +44,22 @@ function App() {
     setDarkMode(!darkMode);
   };
 
+  // Hide navbar when on seller dashboard and modal is open
+  const shouldHideNavbar = location.pathname === '/seller-dashboard' && hideNavbar;
+
   return (
-    <CartProvider>
+    <>
       {/* Animated Background */}
       <div className="animated-bg"></div>
       
       <div className="min-h-screen flex-col relative z-10">
-        <Navbar toggleTheme={toggleTheme} darkMode={darkMode} />
+        {!shouldHideNavbar && <Navbar toggleTheme={toggleTheme} darkMode={darkMode} />}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/seller-dashboard" element={<SellerDashboard />} />
+            <Route path="/seller-dashboard" element={<SellerDashboard setHideNavbar={setHideNavbar} />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/buy-plants" element={<BuyPlants />} />
             <Route path="/cart" element={<Cart />} />
@@ -64,6 +69,14 @@ function App() {
         </main>
         <Footer />
       </div>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <CartProvider>
+      <AppContent />
     </CartProvider>
   );
 }

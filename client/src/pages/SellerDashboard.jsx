@@ -429,15 +429,27 @@ const SellerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 pt-24 relative overflow-hidden"> {/* Added pt-24 to account for navbar */}
+      {/* Animated background elements */}
+      <div className="absolute -top-40 -left-40 w-80 h-80 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+      <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+      <div className="absolute top-20 right-20 w-80 h-80 bg-teal-20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-900">Seller Dashboard</h1>
+          <div className="flex items-center space-x-3 mb-2">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">Seller Dashboard</h1>
+          </div>
           <p className="mt-2 text-gray-600">Manage your plant listings and sales</p>
         </motion.div>
 
@@ -446,19 +458,33 @@ const SellerDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-white p-6 rounded-lg shadow-md"
+            className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300"
           >
-            <h3 className="text-lg font-medium text-gray-900">Total Listings</h3>
-            <p className="text-3xl font-bold text-green-600 mt-2">{plants.length}</p>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">Total Listings</h3>
+            </div>
+            <p className="text-3xl font-bold text-blue-600 mt-2">{plants.length}</p>
           </motion.div>
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white p-6 rounded-lg shadow-md"
+            className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300"
           >
-            <h3 className="text-lg font-medium text-gray-900">Sales This Month</h3>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">Sales This Month</h3>
+            </div>
             <p className="text-3xl font-bold text-green-600 mt-2">$0</p>
           </motion.div>
           
@@ -466,19 +492,26 @@ const SellerDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white p-6 rounded-lg shadow-md"
+            className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-white/50 hover:shadow-xl transition-all duration-300"
           >
-            <h3 className="text-lg font-medium text-gray-900">Active Listings</h3>
-            <p className="text-3xl font-bold text-green-600 mt-2">{plants.filter(plant => plant.stock > 0).length}</p>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">Active Listings</h3>
+            </div>
+            <p className="text-3xl font-bold text-purple-600 mt-2">{plants.filter(plant => plant.stock > 0).length}</p>
           </motion.div>
         </div>
 
         {/* Tab Navigation */}
         <div className="flex border-b border-gray-200 mb-6">
           <button
-            className={`py-2 px-4 font-medium text-sm ${
+            className={`py-3 px-6 font-medium text-sm rounded-t-lg ${
               activeTab === 'listings'
-                ? 'border-b-2 border-green-600 text-green-600'
+                ? 'border-b-2 border-green-600 text-green-600 bg-white/80 backdrop-blur-lg border-t border-l border-r rounded-t-lg'
                 : 'text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setActiveTab('listings')}
@@ -486,9 +519,9 @@ const SellerDashboard = () => {
             Plant Listings
           </button>
           <button
-            className={`py-2 px-4 font-medium text-sm ${
+            className={`py-3 px-6 font-medium text-sm rounded-t-lg ${
               activeTab === 'sales'
-                ? 'border-b-2 border-green-600 text-green-600'
+                ? 'border-b-2 border-green-600 text-green-600 bg-white/80 backdrop-blur-lg border-t border-l border-r rounded-t-lg'
                 : 'text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setActiveTab('sales')}
@@ -503,15 +536,22 @@ const SellerDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="bg-white rounded-lg shadow-md p-6"
+            className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/50 p-6"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Your Plant Listings</h2>
+              <div className="flex items-center space-x-3">
+                <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-semibold text-gray-800">Your Plant Listings</h2>
+              </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsModalOpen(true)}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-emerald-700 transition duration-200 shadow-md"
               >
                 Add Plant
               </motion.button>
@@ -522,9 +562,9 @@ const SellerDashboard = () => {
                 <p className="text-gray-500">No plants listed yet. Add your first plant to get started!</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto rounded-lg border border-gray-200">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50/50">
                     <tr>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Plant Name
@@ -546,9 +586,9 @@ const SellerDashboard = () => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white/50 divide-y divide-gray-200/50">
                     {plants.map((plant) => (
-                      <tr key={plant._id}>
+                      <tr key={plant._id} className="hover:bg-gray-50/30 transition-colors duration-200">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {plant.name}
                         </td>
@@ -579,13 +619,13 @@ const SellerDashboard = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex space-x-2">
                           <button 
                             onClick={() => handleEdit(plant)}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
                           >
                             Edit
                           </button>
                           <button 
                             onClick={() => handleDelete(plant._id)}
-                            className="text-red-600 hover:text-red-900 ml-2"
+                            className="text-red-600 hover:text-red-900 ml-2 transition-colors duration-200"
                           >
                             Delete
                           </button>
@@ -602,9 +642,16 @@ const SellerDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="bg-white rounded-lg shadow-md p-6"
+            className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/50 p-6"
           >
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Manage Sales</h2>
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-800">Manage Sales</h2>
+            </div>
 
             {orders.length === 0 ? (
               <div className="text-center py-12">
@@ -613,7 +660,7 @@ const SellerDashboard = () => {
             ) : (
               <div className="space-y-6">
                 {orders.map((order) => (
-                  <div key={order._id} className="border border-gray-20 rounded-lg p-4">
+                  <div key={order._id} className="border border-gray-200/50 rounded-2xl p-6 bg-white/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow duration-200">
                     <div className="flex flex-wrap justify-between items-start mb-4">
                       <div>
                         <h3 className="text-lg font-medium text-gray-900">Order #{order._id.substring(0, 8)}</h3>
@@ -637,13 +684,13 @@ const SellerDashboard = () => {
                       <p className="text-sm text-gray-600">{order.shippingAddress}</p>
                     </div>
 
-                    <div className="border-t border-gray-200 pt-4 mb-4">
+                    <div className="border-t border-gray-200/50 pt-4 mb-4">
                       <h4 className="text-sm font-medium text-gray-700 mb-3">Order Items</h4>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {order.items.map((item, index) => (
-                          <div key={index} className="flex items-center justify-between text-sm">
+                          <div key={index} className="flex items-center justify-between text-sm bg-white/50 rounded-lg p-3">
                             <div className="flex items-center">
-                              <div className="w-10 h-10 bg-gray-200 rounded-md overflow-hidden mr-3">
+                              <div className="w-12 h-12 bg-gray-200 rounded-md overflow-hidden mr-4">
                                 {item.plant.imageUrl ? (
                                   <img
                                     src={item.plant.imageUrl}
@@ -651,7 +698,7 @@ const SellerDashboard = () => {
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-gray-50 text-xs">
+                                  <div className="w-full h-full flex items-center justify-center text-gray-50 text-xs bg-gray-100">
                                     No Image
                                   </div>
                                 )}
@@ -661,24 +708,24 @@ const SellerDashboard = () => {
                                 <span className="text-gray-500 ml-2">Qty: {item.quantity}</span>
                               </div>
                             </div>
-                            <div className="text-gray-900">${(item.price * item.quantity).toFixed(2)}</div>
+                            <div className="text-gray-900 font-medium">${(item.price * item.quantity).toFixed(2)}</div>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="border-t border-gray-200 pt-4 flex justify-between items-center">
+                    <div className="border-t border-gray-200/50 pt-4 flex justify-between items-center">
                       <div className="text-lg font-semibold text-gray-900">Total: ${order.totalAmount.toFixed(2)}</div>
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-2 flex-wrap justify-end gap-2">
                         {order.orderStatus !== 'Delivered' && (
                           <>
                             <button
                               onClick={() => updateOrderStatus(order._id, 'Processing')}
                               disabled={order.orderStatus === 'Processing'}
-                              className={`px-3 py-1 text-xs rounded ${
+                              className={`px-3 py-1 text-xs rounded-lg ${
                                 order.orderStatus === 'Processing'
                                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                  : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                                  : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors duration-200'
                               }`}
                             >
                               Processing
@@ -686,10 +733,10 @@ const SellerDashboard = () => {
                             <button
                               onClick={() => updateOrderStatus(order._id, 'Shipped')}
                               disabled={order.orderStatus === 'Shipped' || order.orderStatus === 'Delivered'}
-                              className={`px-3 py-1 text-xs rounded ${
+                              className={`px-3 py-1 text-xs rounded-lg ${
                                 order.orderStatus === 'Shipped' || order.orderStatus === 'Delivered'
                                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                  : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                                  : 'bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200'
                               }`}
                             >
                               Mark as Shipped
@@ -697,10 +744,10 @@ const SellerDashboard = () => {
                             <button
                               onClick={() => updateOrderStatus(order._id, 'Delivered')}
                               disabled={order.orderStatus === 'Delivered'}
-                              className={`px-3 py-1 text-xs rounded ${
+                              className={`px-3 py-1 text-xs rounded-lg ${
                                 order.orderStatus === 'Delivered'
                                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                  : 'bg-green-100 text-green-800 hover:bg-green-200'
+                                  : 'bg-green-100 text-green-800 hover:bg-green-200 transition-colors duration-200'
                               }`}
                             >
                               Mark as Delivered
@@ -709,7 +756,7 @@ const SellerDashboard = () => {
                         )}
                         <button
                           onClick={() => openTrackingModal(order._id)}
-                          className="px-3 py-1 text-xs rounded bg-purple-100 text-purple-800 hover:bg-purple-200"
+                          className="px-3 py-1 text-xs rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors duration-200"
                         >
                           Update Tracking
                         </button>
@@ -736,10 +783,17 @@ const SellerDashboard = () => {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white rounded-lg shadow-xl w-full max-w-md p-6"
+                className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl w-full max-w-md p-6 border border-white/50"
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="text-lg font-medium text-gray-900 mb-4">{isEditing ? 'Edit Plant' : 'Add New Plant'}</h3>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900">{isEditing ? 'Edit Plant' : 'Add New Plant'}</h3>
+                </div>
                 
                 <form onSubmit={isEditing ? handleUpdate : handleSubmit}>
                   <div className="space-y-4">
@@ -750,9 +804,9 @@ const SellerDashboard = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-md ${
+                        className={`w-full px-3 py-2 border rounded-lg ${
                           errors.name ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        } bg-white/50`}
                         placeholder="Enter plant name"
                       />
                       {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
@@ -764,9 +818,9 @@ const SellerDashboard = () => {
                         name="category"
                         value={formData.category}
                         onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-md ${
+                        className={`w-full px-3 py-2 border rounded-lg ${
                           errors.category ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        } bg-white/50`}
                       >
                         <option value="Vegetable">Vegetable</option>
                         <option value="Flower">Flower</option>
@@ -784,9 +838,9 @@ const SellerDashboard = () => {
                         onChange={handleInputChange}
                         min="0"
                         step="0.01"
-                        className={`w-full px-3 py-2 border rounded-md ${
+                        className={`w-full px-3 py-2 border rounded-lg ${
                           errors.price ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        } bg-white/50`}
                         placeholder="0.00"
                       />
                       {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
@@ -800,9 +854,9 @@ const SellerDashboard = () => {
                         value={formData.stock}
                         onChange={handleInputChange}
                         min="0"
-                        className={`w-full px-3 py-2 border rounded-md ${
+                        className={`w-full px-3 py-2 border rounded-lg ${
                           errors.stock ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        } bg-white/50`}
                         placeholder="0"
                       />
                       {errors.stock && <p className="text-red-500 text-xs mt-1">{errors.stock}</p>}
@@ -814,9 +868,9 @@ const SellerDashboard = () => {
                         name="careLevel"
                         value={formData.careLevel}
                         onChange={handleInputChange}
-                        className={`w-full px-3 py-2 border rounded-md ${
+                        className={`w-full px-3 py-2 border rounded-lg ${
                           errors.careLevel ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        } bg-white/50`}
                       >
                         <option value="Easy">Easy</option>
                         <option value="Medium">Medium</option>
@@ -832,9 +886,9 @@ const SellerDashboard = () => {
                         name="image"
                         accept="image/*"
                         onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/50"
                       />
-                      <p className="text-xs text-gray-50 mt-1">Upload a plant image (JPG, PNG)</p>
+                      <p className="text-xs text-gray-500 mt-1">Upload a plant image (JPG, PNG)</p>
                     </div>
                     
                     <div>
@@ -844,9 +898,9 @@ const SellerDashboard = () => {
                         value={formData.description}
                         onChange={handleInputChange}
                         rows="3"
-                        className={`w-full px-3 py-2 border rounded-md ${
+                        className={`w-full px-3 py-2 border rounded-lg ${
                           errors.description ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        } bg-white/50`}
                         placeholder="Enter plant description"
                       ></textarea>
                       {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
@@ -857,13 +911,13 @@ const SellerDashboard = () => {
                     <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-70"
+                      className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md"
                     >
                       {isEditing ? 'Update Plant' : 'Add Plant'}
                     </button>
@@ -888,10 +942,17 @@ const SellerDashboard = () => {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white rounded-lg shadow-xl w-full max-w-md p-6"
+                className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl w-full max-w-md p-6 border border-white/50"
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Update Tracking Information</h3>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900">Update Tracking Information</h3>
+                </div>
                 
                 <form onSubmit={handleTrackingSubmit}>
                   <div className="space-y-4">
@@ -901,7 +962,7 @@ const SellerDashboard = () => {
                         type="date"
                         value={trackingData.expectedDeliveryDate}
                         onChange={(e) => setTrackingData({...trackingData, expectedDeliveryDate: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/50"
                       />
                     </div>
                     
@@ -911,7 +972,7 @@ const SellerDashboard = () => {
                         type="text"
                         value={trackingData.currentLocation}
                         onChange={(e) => setTrackingData({...trackingData, currentLocation: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/50"
                         placeholder="Enter current location of shipment"
                       />
                     </div>
@@ -921,7 +982,7 @@ const SellerDashboard = () => {
                       <select
                         value={trackingData.status}
                         onChange={(e) => setTrackingData({...trackingData, status: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/50"
                       >
                         <option value="">Select Status</option>
                         <option value="Order Placed">Order Placed</option>
@@ -938,7 +999,7 @@ const SellerDashboard = () => {
                         value={trackingData.notes}
                         onChange={(e) => setTrackingData({...trackingData, notes: e.target.value})}
                         rows="3"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white/50"
                         placeholder="Additional notes about the shipment"
                       ></textarea>
                     </div>
@@ -948,13 +1009,13 @@ const SellerDashboard = () => {
                     <button
                       type="button"
                       onClick={() => setShowTrackingModal(false)}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                      className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md"
                     >
                       Update Tracking
                     </button>

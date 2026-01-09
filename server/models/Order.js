@@ -34,6 +34,20 @@ const orderSchema = new mongoose.Schema({
     },
     required: true
   },
+  paymentDetails: {
+    cardNumber: {
+      type: String,
+      // Only required for Online payments
+    },
+    expiryDate: {
+      type: String,
+      // Only required for Online payments
+    },
+    cardholderName: {
+      type: String,
+      // Only required for Online payments
+    }
+  },
   paymentStatus: {
     type: String,
     enum: {

@@ -60,14 +60,27 @@ router.post('/', protect, authorize('buyer'), async (req, res) => {
       });
     }
 
-    // Create the order
-    const order = await Order.create({
+    // Prepare order data
+    const orderData = {
       buyer: req.user._id,
       items,
       totalAmount,
       paymentMethod,
       shippingAddress
-    });
+    };
+
+    // Add payment details if it's an online payment
+    if (paymentMethod === 'Online' && req.body.paymentDetails) {
+      orderData.paymentDetails = {
+        cardNumber: req.body.paymentDetails.cardNumber,
+        expiryDate: req.body.paymentDetails.expiryDate,
+        cardholderName: req.body.paymentDetails.cardholderName
+        // Note: CVV is intentionally not stored for security reasons
+      };
+    }
+
+    // Create the order
+    const order = await Order.create(orderData);
 
     // Decrease stock for each plant in the order
     for (const item of items) {

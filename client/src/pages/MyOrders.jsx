@@ -147,6 +147,18 @@ const MyOrders = () => {
                     <p className="text-sm text-gray-600">{order.shippingAddress}</p>
                   </div>
 
+                  {/* Payment Details for Online Payments */}
+                  {order.paymentMethod === 'Online' && order.paymentDetails && (
+                    <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Payment Information</h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-gray-60">
+                        <div><span className="font-medium">Card Number:</span> ****{order.paymentDetails.cardNumber?.slice(-4)}</div>
+                        <div><span className="font-medium">Expiry:</span> {order.paymentDetails.expiryDate}</div>
+                        <div><span className="font-medium">Cardholder:</span> {order.paymentDetails.cardholderName}</div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="border-t border-gray-200 pt-4">
                     <h4 className="text-sm font-medium text-gray-700 mb-3">Order Items</h4>
                     <div className="space-y-3">

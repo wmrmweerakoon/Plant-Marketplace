@@ -176,100 +176,101 @@ const BuyPlants = () => {
       {/* Plant Detail Modal */}
       {selectedPlant && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-green-200 glass-effect backdrop-blur-lg relative">
-            <div className="p-8">
-              <div className="flex justify-between items-start mb-6 pb-4 border-b border-gray-200">
-                <h2 className="text-3xl font-bold text-gray-900">{selectedPlant.name}</h2>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-200 relative">
+            <div className="p-6 md:p-8">
+              <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-100">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{selectedPlant.name}</h2>
                 <button
                   onClick={handleCloseDetails}
-                  className="text-gray-500 hover:text-gray-800 text-4xl transition duration-200 absolute top-6 right-6 bg-gray-10 hover:bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center"
+                  className="text-gray-500 hover:text-gray-800 text-2xl transition duration-200 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center"
                 >
-                  ×
+                  ✕
                 </button>
               </div>
               
-              <div className="flex flex-col md:flex-row gap-10">
+              <div className="flex flex-col md:flex-row gap-8">
                 <div className="md:w-2/5">
                   {selectedPlant.imageUrl ? (
-                    <div className="relative group overflow-hidden rounded-2xl shadow-lg">
+                    <div className="overflow-hidden rounded-xl shadow-md mb-6">
                       <img
                         src={selectedPlant.imageUrl}
                         alt={selectedPlant.name}
-                        className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="w-full h-60 object-cover transition-transform duration-300 hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
                   ) : (
-                    <div className="w-full h-80 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center shadow-lg border-2 border-dashed border-green-200">
-                      <div className="text-center">
-                        <div className="text-5xl mb-3">🌿</div>
-                        <span className="text-gray-500 text-lg">No image available</span>
+                    <div className="w-full h-60 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl flex items-center justify-center shadow-inner mb-6 border-2 border-dashed border-gray-200">
+                      <div className="text-center p-4">
+                        <div className="text-4xl mb-2 text-green-400">🌿</div>
+                        <span className="text-gray-500 text-sm">No image available</span>
                       </div>
                     </div>
                   )}
                   
-                  <div className="mt-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100 shadow-sm">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Plant Details</h3>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center pb-3 border-b border-green-100">
-                        <span className="text-gray-600">Category</span>
-                        <span className="font-medium text-gray-900">{selectedPlant.category}</span>
-                      </div>
-                      <div className="flex justify-between items-center pb-3 border-b border-green-100">
-                        <span className="text-gray-600">Care Level</span>
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          selectedPlant.careLevel === 'Easy' ? 'bg-green-100 text-green-800' :
-                          selectedPlant.careLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {selectedPlant.careLevel}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center pb-3 border-b border-green-100">
-                        <span className="text-gray-600">In Stock</span>
-                        <span className="font-medium text-gray-900">{selectedPlant.stock} units</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Seller</span>
-                        <span className="font-medium text-gray-900">{selectedPlant.seller?.name || 'Unknown'}</span>
-                      </div>
+                  <div className="bg-gray-50 rounded-xl p-5 space-y-4 border border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Plant Information</h3>
+                    
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0 last:pb-0">
+                      <span className="text-gray-600 text-sm">Category</span>
+                      <span className="font-medium text-gray-900">{selectedPlant.category}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0 last:pb-0">
+                      <span className="text-gray-600 text-sm">Care Level</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        selectedPlant.careLevel === 'Easy' ? 'bg-green-100 text-green-800' :
+                        selectedPlant.careLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {selectedPlant.careLevel}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0 last:pb-0">
+                      <span className="text-gray-600 text-sm">In Stock</span>
+                      <span className="font-medium text-gray-900">{selectedPlant.stock} units</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0 last:pb-0">
+                      <span className="text-gray-600 text-sm">Seller</span>
+                      <span className="font-medium text-gray-900">{selectedPlant.seller?.name || 'Unknown'}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="md:w-3/5 space-y-8">
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100 shadow-sm">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">Description</h3>
+                <div className="md:w-3/5 space-y-6">
+                  <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Description</h3>
                     <p className="text-gray-700 leading-relaxed">{selectedPlant.description}</p>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100 shadow-sm text-center">
-                    <div className="text-4xl font-bold text-green-700 mb-2">${selectedPlant.price.toFixed(2)}</div>
-                    <p className="text-gray-600 mb-6">per unit</p>
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 text-center border border-green-100">
+                    <div className="text-3xl font-bold text-green-700 mb-1">${selectedPlant.price.toFixed(2)}</div>
+                    <p className="text-gray-600 text-sm mb-4">per unit</p>
                     <button
-                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition duration-200 shadow-lg shadow-green-500/30 text-lg font-medium"
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg hover:from-green-700 hover:to-emerald-700 transition duration-200 shadow-md text-base font-medium"
                     >
                       Contact Seller
                     </button>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100 shadow-sm">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Care Instructions</h3>
-                    <ul className="space-y-2 text-gray-700">
+                  <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Care Instructions</h3>
+                    <ul className="space-y-2 text-gray-700 text-sm">
                       <li className="flex items-start">
-                        <span className="text-green-600 mr-2">✓</span>
+                        <span className="text-green-500 mr-2 mt-1">•</span>
                         <span>Place in bright, indirect sunlight</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-green-600 mr-2">✓</span>
-                        <span>Water when soil feels dry touch</span>
+                        <span className="text-green-500 mr-2 mt-1">•</span>
+                        <span>Water when soil feels dry to touch</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-green-600 mr-2">✓</span>
+                        <span className="text-green-500 mr-2 mt-1">•</span>
                         <span>Maintain room temperature between 65-75°F</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-green-600 mr-2">✓</span>
+                        <span className="text-green-500 mr-2 mt-1">•</span>
                         <span>Fertilize monthly during growing season</span>
                       </li>
                     </ul>

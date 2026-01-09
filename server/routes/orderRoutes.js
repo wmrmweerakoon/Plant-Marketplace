@@ -66,18 +66,9 @@ router.post('/', protect, authorize('buyer'), async (req, res) => {
       items,
       totalAmount,
       paymentMethod,
-      shippingAddress
+      shippingAddress,
+      paymentStatus: paymentMethod === 'Online' ? 'Pending' : 'Pending' // Both COD and Online start as Pending for consistency
     };
-
-    // Add payment details if it's an online payment
-    if (paymentMethod === 'Online' && req.body.paymentDetails) {
-      orderData.paymentDetails = {
-        cardNumber: req.body.paymentDetails.cardNumber,
-        expiryDate: req.body.paymentDetails.expiryDate,
-        cardholderName: req.body.paymentDetails.cardholderName
-        // Note: CVV is intentionally not stored for security reasons
-      };
-    }
 
     // Create the order
     const order = await Order.create(orderData);
@@ -103,7 +94,7 @@ router.post('/', protect, authorize('buyer'), async (req, res) => {
 
 // @desc    Get all orders for a buyer
 // @route   GET /api/orders/my-orders
-// @access  Private (Buyers only)
+// @access Private (Buyers only)
 router.get('/my-orders', protect, authorize('buyer'), async (req, res) => {
   try {
     const orders = await Order.find({ buyer: req.user._id })

@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import PaymentForm from '../components/PaymentForm';
+
+// Load Stripe with your publishable key
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_stripe_publishable_key_here'); // Replace with your actual key
 
 const Checkout = () => {
   const { cart, getTotalPrice, clearCart } = useCart();
@@ -117,15 +123,8 @@ const Checkout = () => {
         shippingAddress: `${formData.address}, ${formData.city}, ${formData.zipCode}`
       };
 
-      // Add payment details for online payment
-      if (formData.paymentMethod === 'Online') {
-        orderData.paymentDetails = {
-          cardNumber: formData.bankDetails.cardNumber,
-          expiryDate: formData.bankDetails.expiryDate,
-          cardholderName: formData.bankDetails.cardholderName
-          // Note: CVV is not included for security reasons (should not be stored)
-        };
-      }
+      // For online payments, we'll handle payment details separately via Stripe
+      // The order will be created with payment status "Pending" initially
 
       // Send order to backend
       const response = await fetch('/api/orders', {
@@ -259,7 +258,6 @@ const Checkout = () => {
                       placeholder="12345"
                     />
                   </div>
-                </div>
                 
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
@@ -303,118 +301,52 @@ const Checkout = () => {
                   </div>
                 </div>
                 
-                {/* Bank Details Form - Show only when Online Payment is selected */}
-                {formData.paymentMethod === 'Online' && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200"
-                  >
-                    <h3 className="text-lg font-medium text-gray-800 mb-4">Bank Card Details</h3>
+                {/* Stripe Payment Form - Show only when Online Payment is selected */}
+                {formData.paymentMethod === 'Online' ? (
+                  <Elements stripe={stripePromise}>
+                    <PaymentForm
+                      formData={formData}
+                      setFormData={setFormData}
+                      loading={loading}
+                      setLoading={setLoading}
+                      setError={setError}
+                      orderData={{
+                        items: selectedItems.map(item => ({
+                          plant: item.plant._id,
+                          quantity: item.quantity,
+                          price: item.plant.price
+                        })),
+                        totalAmount: getSelectedTotalPrice(),
+                        shippingAddress: `${formData.address}, ${formData.city}, ${formData.zipCode}`
+                      }}
+                      onSuccess={(orderId) => {
+                        // Clear cart and navigate to order confirmation
+                        clearCart();
+                        navigate('/my-orders');
+                      }}
+                    />
+                  </Elements>
+                ) : (
+                  <>
+                    {error && (
+                      <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+                        {error}
+                      </div>
+                    )}
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                        <input
-                          type="text"
-                          name="bankDetails.cardNumber"
-                          value={formData.bankDetails.cardNumber}
-                          onChange={(e) => setFormData({
-                            ...formData,
-                            bankDetails: {
-                              ...formData.bankDetails,
-                              cardNumber: e.target.value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim()
-                            }
-                          })}
-                          required={formData.paymentMethod === 'Online'}
-                          maxLength="19"
-                          placeholder="1234 5678 9012 3456"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-                        <input
-                          type="text"
-                          name="bankDetails.expiryDate"
-                          value={formData.bankDetails.expiryDate}
-                          onChange={(e) => setFormData({
-                            ...formData,
-                            bankDetails: {
-                              ...formData.bankDetails,
-                              expiryDate: e.target.value
-                                .replace(/\D/g, '')
-                                .replace(/(\d{2})(\d)/, '$1/$2')
-                                .substring(0, 5)
-                            }
-                          })}
-                          required={formData.paymentMethod === 'Online'}
-                          placeholder="MM/YY"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                        <input
-                          type="password"
-                          name="bankDetails.cvv"
-                          value={formData.bankDetails.cvv}
-                          onChange={(e) => setFormData({
-                            ...formData,
-                            bankDetails: {
-                              ...formData.bankDetails,
-                              cvv: e.target.value.replace(/\D/g, '').substring(0, 4)
-                            }
-                          })}
-                          required={formData.paymentMethod === 'Online'}
-                          maxLength="4"
-                          placeholder="123"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                      </div>
-                      
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
-                        <input
-                          type="text"
-                          name="bankDetails.cardholderName"
-                          value={formData.bankDetails.cardholderName}
-                          onChange={(e) => setFormData({
-                            ...formData,
-                            bankDetails: {
-                              ...formData.bankDetails,
-                              cardholderName: e.target.value
-                            }
-                          })}
-                          required={formData.paymentMethod === 'Online'}
-                          placeholder="John Doe"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      disabled={loading}
+                      className={`w-full py-3 px-4 rounded-md text-white font-medium ${
+                        loading ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
+                      } transition duration-200`}
+                    >
+                      {loading ? 'Processing...' : `Place Order - $${getSelectedTotalPrice().toFixed(2)}`}
+                    </motion.button>
+                  </>
                 )}
-                
-                {error && (
-                  <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-                    {error}
-                  </div>
-                )}
-                
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={loading}
-                  className={`w-full py-3 px-4 rounded-md text-white font-medium ${
-                    loading ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
-                  } transition duration-200`}
-                >
-                  {loading ? 'Processing...' : `Place Order - $${getSelectedTotalPrice().toFixed(2)}`}
-                </motion.button>
               </form>
             </motion.div>
           </div>

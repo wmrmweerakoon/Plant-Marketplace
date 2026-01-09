@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Load environment variables
 dotenv.config();
@@ -52,6 +53,7 @@ const plantRoutes = require('./routes/plantRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 /**
  * ROUTES
@@ -76,11 +78,14 @@ app.use('/api/cart', cartRoutes);
 // 6. Admin Routes
 app.use('/api/admin', adminRoutes);
 
+// 7. Payment Routes
+app.use('/api/payment', paymentRoutes);
+
 // Serve static assets if in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
 
-  app.get('*', (req, res) => {
+ app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
   });
 }

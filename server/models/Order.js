@@ -34,19 +34,9 @@ const orderSchema = new mongoose.Schema({
     },
     required: true
   },
-  paymentDetails: {
-    cardNumber: {
-      type: String,
-      // Only required for Online payments
-    },
-    expiryDate: {
-      type: String,
-      // Only required for Online payments
-    },
-    cardholderName: {
-      type: String,
-      // Only required for Online payments
-    }
+  paymentIntentId: {
+    type: String,
+    // Store Stripe payment intent ID for online payments
   },
   paymentStatus: {
     type: String,

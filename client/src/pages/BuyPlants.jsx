@@ -182,7 +182,7 @@ const BuyPlants = () => {
                 <h2 className="text-3xl font-bold text-gray-900">{selectedPlant.name}</h2>
                 <button
                   onClick={handleCloseDetails}
-                  className="text-gray-500 hover:text-gray-800 text-4xl transition duration-200 absolute top-6 right-6 bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center"
+                  className="text-gray-500 hover:text-gray-800 text-4xl transition duration-200 absolute top-6 right-6 bg-gray-10 hover:bg-gray-200 rounded-full w-10 h-10 flex items-center justify-center"
                 >
                   ×
                 </button>
@@ -285,4 +285,3 @@ const BuyPlants = () => {
 };
 
 export default BuyPlants;
-              

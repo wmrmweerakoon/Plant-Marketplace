@@ -64,95 +64,35 @@ const BuyPlants = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-green-200 rounded-full opacity-20 blur-xl"></div>
-      <div className="absolute bottom-20 right-10 w-40 h-40 bg-emerald-200 rounded-full opacity-20 blur-xl"></div>
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Page Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 text-center relative z-10"
+        >
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Buy Plants</h1>
+          <p className="text-lg text-gray-600">Discover and purchase beautiful plants from our marketplace</p>
+        </motion.div>
 
-      {/* Hero Section with Image */}
-      <section className="relative py-16 md:py-24 overflow-hidden z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="relative z-20"
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight relative z-10">
-                Discover Beautiful <span className="text-green-700">Plants</span> for Sale
-              </h1>
-              <p className="text-lg text-gray-600 mb-8 max-w-lg relative z-10">
-                Explore our curated collection of healthy, vibrant plants from trusted sellers. Find the perfect addition to your garden or home today.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 relative z-10">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-green-700 text-white px-8 py-3 rounded-lg font-medium hover:bg-green-800 transition duration-300 shadow-lg shadow-green-500/20 btn-animated"
-                >
-                  Browse Plants
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="border-2 border-green-700 text-green-700 px-8 py-3 rounded-lg font-medium hover:bg-green-50 transition duration-300 shadow-lg shadow-green-500/10 btn-animated"
-                >
-                  Filter Plants
-                </motion.button>
-              </div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="relative flex justify-center z-10"
-            >
-              <div className="relative w-full max-w-lg">
-                {/* Image container with glassmorphism effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-3xl transform rotate-6 opacity-20"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-3xl transform -rotate-6 opacity-20"></div>
-                
-                <div className="relative glass-effect rounded-3xl p-6 shadow-2xl overflow-hidden border border-white/30">
-                  <img 
-                    src={pottedPlantsImage} 
-                    alt="Rows of neatly organized potted plants" 
-                    className="w-full h-auto object-cover rounded-2xl shadow-lg product-image floating-element"
-                    style={{ maxHeight: '500px' }}
-                  />
-                </div>
-                
-                {/* Floating elements around the image */}
-                <motion.div 
-                  className="absolute -top-6 -right-6 w-16 h-16 bg-green-500 rounded-full opacity-10 blur-xl"
-                  animate={{ y: [-10, 10, -10] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                ></motion.div>
-                <motion.div 
-                  className="absolute -bottom-6 -left-6 w-12 h-12 bg-emerald-500 rounded-full opacity-10 blur-xl"
-                  animate={{ y: [10, -10, 10] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                ></motion.div>
-              </div>
-            </motion.div>
-          </div>
+        {/* Decorative Image */}
+        <div className="mb-8 flex justify-center relative z-10">
+          <img
+            src={pottedPlantsImage}
+            alt="Rows of neatly organized potted plants"
+            className="w-full max-w-4xl h-auto object-cover rounded-xl shadow-lg"
+          />
         </div>
-      </section>
 
-      {/* Filters Section */}
-      <section className="py-12 relative z-10 bg-white/80 backdrop-blur-sm glass-effect mx-4 md:mx-8 rounded-2xl shadow-lg border border-white/30 mt-8 mb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-6 text-center"
-          >
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Find Your Perfect Plant</h2>
-            <p className="text-gray-600">Filter our collection to find exactly what you're looking for</p>
-          </motion.div>
-          
+        {/* Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-8 bg-white p-6 rounded-lg shadow-md glass-effect border border-white/30 backdrop-blur-sm"
+        >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
@@ -202,48 +142,32 @@ const BuyPlants = () => {
               </button>
             </div>
           </div>
-        </div>
-      </section>
+        </motion.div>
 
-      {/* Plant Grid Section */}
-      <section className="pb-16 relative z-10 mx-4 md:mx-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8 text-center"
-          >
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Available Plants</h2>
-            <p className="text-gray-600">Browse our selection of healthy, beautiful plants</p>
-          </motion.div>
-
-          {/* Plant Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
-            {filteredPlants.length > 0 ? (
-              filteredPlants.map((plant) => (
-                <PlantCard
-                  key={plant._id}
-                  plant={plant}
-                  onViewDetails={handleViewDetails}
-                />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-12 bg-white/80 backdrop-blur-sm glass-effect rounded-2xl p-8 border border-white/30 shadow-lg">
-                <div className="text-6xl mb-4">🌱</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No plants found</h3>
-                <p className="text-gray-600">Try adjusting your filters or check back later for new listings.</p>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      </section>
+        {/* Plant Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        >
+          {filteredPlants.length > 0 ? (
+            filteredPlants.map((plant) => (
+              <PlantCard
+                key={plant._id}
+                plant={plant}
+                onViewDetails={handleViewDetails}
+              />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 bg-white/80 backdrop-blur-sm glass-effect rounded-2xl p-8 border border-white/30 shadow-lg">
+              <div className="text-6xl mb-4">🌱</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">No plants found</h3>
+              <p className="text-gray-600">Try adjusting your filters or check back later for new listings.</p>
+            </div>
+          )}
+        </motion.div>
+      </div>
 
       {/* Plant Detail Modal */}
       {selectedPlant && (

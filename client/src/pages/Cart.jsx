@@ -45,7 +45,7 @@ const Cart = () => {
   // Initialize selectedItems when cart items change
   React.useEffect(() => {
     const initialSelections = {};
-    cart.items.forEach(item => {
+    (cart.items || []).forEach(item => {
       initialSelections[item.plant._id] = true; // By default, select all items
     });
     setSelectedItems(initialSelections);
@@ -60,7 +60,7 @@ const Cart = () => {
 
   const selectAllItems = () => {
     const newSelections = {};
-    cart.items.forEach(item => {
+    (cart.items || []).forEach(item => {
       newSelections[item.plant._id] = true;
     });
     setSelectedItems(newSelections);
@@ -68,14 +68,14 @@ const Cart = () => {
 
   const deselectAllItems = () => {
     const newSelections = {};
-    cart.items.forEach(item => {
+    (cart.items || []).forEach(item => {
       newSelections[item.plant._id] = false;
     });
     setSelectedItems(newSelections);
   };
 
   const getSelectedItems = () => {
-    return cart.items.filter(item => selectedItems[item.plant._id]);
+    return (cart.items || []).filter(item => selectedItems[item.plant._id]);
   };
 
   const getSelectedTotalPrice = () => {
@@ -88,7 +88,7 @@ const Cart = () => {
     navigate('/checkout', { state: { selectedItems: getSelectedItems() } });
   };
 
-  if (cart.items.length === 0) {
+  if ((cart.items || []).length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -132,9 +132,9 @@ const Cart = () => {
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      checked={cart.items.length > 0 && cart.items.every(item => selectedItems[item.plant._id])}
+                      checked={(cart.items || []).length > 0 && (cart.items || []).every(item => selectedItems[item.plant._id])}
                       onChange={() => {
-                        if (cart.items.length > 0 && cart.items.every(item => selectedItems[item.plant._id])) {
+                        if ((cart.items || []).length > 0 && (cart.items || []).every(item => selectedItems[item.plant._id])) {
                           deselectAllItems();
                         } else {
                           selectAllItems();
@@ -145,11 +145,11 @@ const Cart = () => {
                     <span className="text-sm font-medium text-gray-700">Select All</span>
                   </div>
                   <div className="text-sm text-gray-500">
-                    {getSelectedItems().length} of {cart.items.length} items selected
+                    {getSelectedItems().length} of {(cart.items || []).length} items selected
                   </div>
                 </div>
                 <AnimatePresence>
-                  {cart.items.map((item) => (
+                  {(cart.items || []).map((item) => (
                     <motion.div
                       key={item.plant._id}
                       initial={{ opacity: 0, height: 0 }}

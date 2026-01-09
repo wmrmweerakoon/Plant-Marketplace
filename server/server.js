@@ -4,10 +4,12 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Load environment variables
 dotenv.config();
+
+// Initialize Stripe after environment variables are loaded
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 

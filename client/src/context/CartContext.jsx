@@ -12,12 +12,13 @@ const cartReducer = (state, action) => {
       };
     
     case 'ADD_TO_CART':
-      const existingItem = state.items.find(item => item.plant._id === action.payload.plant._id);
+      const items = state.items || [];
+      const existingItem = items.find(item => item.plant._id === action.payload.plant._id);
       
       if (existingItem) {
         return {
           ...state,
-          items: state.items.map(item =>
+          items: items.map(item =>
             item.plant._id === action.payload.plant._id
               ? { ...item, quantity: item.quantity + action.payload.quantity }
               : item
@@ -26,20 +27,20 @@ const cartReducer = (state, action) => {
       } else {
         return {
           ...state,
-          items: [...state.items, { ...action.payload, quantity: action.payload.quantity }]
+          items: [...items, { ...action.payload, quantity: action.payload.quantity }]
         };
       }
 
     case 'REMOVE_FROM_CART':
       return {
         ...state,
-        items: state.items.filter(item => item.plant._id !== action.payload)
+        items: (state.items || []).filter(item => item.plant._id !== action.payload)
       };
 
     case 'UPDATE_QUANTITY':
       return {
         ...state,
-        items: state.items.map(item =>
+        items: (state.items || []).map(item =>
           item.plant._id === action.payload.plantId
             ? { ...item, quantity: action.payload.quantity }
             : item
@@ -116,15 +117,60 @@ export const CartProvider = ({ children }) => {
       let backendCart = [];
       if (response.ok) {
         const data = await response.json();
-        backendCart = data.cart;
+        backendCart = data.data.items || [];
       }
 
       // Find items that exist in local state but not in backend (need to be added/updated)
-      for (const localItem of state.items) {
-        const backendItem = backendCart.find(item => item.plant._id === localItem.plant._id);
-        if (!backendItem) {
-          // Item doesn't exist in backend, add it
-          await fetch('/api/cart', {
+      const localItems = state.items || [];
+      if (backendCart && Array.isArray(backendCart)) {
+        for (const localItem of localItems) {
+          const backendItem = backendCart.find(item => item.plant._id === localItem.plant._id);
+          if (!backendItem) {
+            // Item doesn't exist in backend, add it
+            await fetch('/api/cart/add', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                plantId: localItem.plant._id,
+                quantity: localItem.quantity
+              })
+            });
+          } else if (backendItem.quantity !== localItem.quantity) {
+            // Item exists but quantity differs, update it
+            await fetch(`/api/cart/update/${localItem.plant._id}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                quantity: localItem.quantity
+              })
+            });
+          }
+        }
+
+        // Find items that exist in backend but not in local state (need to be removed)
+        for (const backendItem of backendCart) {
+          const localItem = localItems.find(item => item.plant._id === backendItem.plant._id);
+          if (!localItem) {
+            // Item exists in backend but not in local state, remove it
+            await fetch(`/api/cart/remove/${backendItem.plant._id}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              }
+            });
+          }
+        }
+      } else {
+        // If backendCart is not properly defined, we might need to send all local items to backend
+        for (const localItem of localItems) {
+          await fetch('/api/cart/add', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -134,33 +180,6 @@ export const CartProvider = ({ children }) => {
               plantId: localItem.plant._id,
               quantity: localItem.quantity
             })
-          });
-        } else if (backendItem.quantity !== localItem.quantity) {
-          // Item exists but quantity differs, update it
-          await fetch(`/api/cart/${localItem.plant._id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              quantity: localItem.quantity
-            })
-          });
-        }
-      }
-
-      // Find items that exist in backend but not in local state (need to be removed)
-      for (const backendItem of backendCart) {
-        const localItem = state.items.find(item => item.plant._id === backendItem.plant._id);
-        if (!localItem) {
-          // Item exists in backend but not in local state, remove it
-          await fetch(`/api/cart/${backendItem.plant._id}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
           });
         }
       }
@@ -184,7 +203,25 @@ export const CartProvider = ({ children }) => {
 
       if (response.ok) {
         const data = await response.json();
-        dispatch({ type: 'SET_CART_ITEMS', payload: data.cart });
+        // Ensure data.data.items exists and is an array before dispatching
+        if (data && data.data && Array.isArray(data.data.items)) {
+          dispatch({ type: 'SET_CART_ITEMS', payload: data.data.items });
+        } else {
+          console.warn('Invalid cart data received from backend:', data);
+          // Fallback to sessionStorage if backend data is invalid
+          const savedCart = sessionStorage.getItem('cart');
+          if (savedCart) {
+            try {
+              const parsedCart = JSON.parse(savedCart);
+              dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
+            } catch (parseError) {
+              console.error('Error parsing fallback cart from sessionStorage:', parseError);
+            }
+          } else {
+            // Initialize with empty cart if no fallback available
+            dispatch({ type: 'SET_CART_ITEMS', payload: [] });
+          }
+        }
       } else {
         console.error('Failed to load cart from backend:', response.status, response.statusText);
         // If loading from backend fails, try to load from sessionStorage as fallback
@@ -235,7 +272,7 @@ export const CartProvider = ({ children }) => {
 
     // Immediately sync with backend
     try {
-      const response = await fetch('/api/cart', {
+      const response = await fetch('/api/cart/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -248,7 +285,14 @@ export const CartProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorText = await response.text(); // Use text() first to avoid JSON parsing errors
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (e) {
+          console.error('Error parsing error response:', e);
+          errorData = { message: errorText || 'Unknown error occurred' };
+        }
         console.error('Error adding item to cart:', errorData.message);
         // If backend sync fails, we'll still have the item in local state
         // and it will be synced later when possible
@@ -270,7 +314,7 @@ export const CartProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await fetch(`/api/cart/${plantId}`, {
+        const response = await fetch(`/api/cart/remove/${plantId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -279,7 +323,14 @@ export const CartProvider = ({ children }) => {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
+          const errorText = await response.text(); // Use text() first to avoid JSON parsing errors
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            console.error('Error parsing error response:', e);
+            errorData = { message: errorText || 'Unknown error occurred' };
+          }
           console.error('Error removing item from cart:', errorData.message);
         }
       } catch (error) {
@@ -303,7 +354,7 @@ export const CartProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await fetch(`/api/cart/${plantId}`, {
+        const response = await fetch(`/api/cart/update/${plantId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -315,7 +366,14 @@ export const CartProvider = ({ children }) => {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
+          const errorText = await response.text(); // Use text() first to avoid JSON parsing errors
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            console.error('Error parsing error response:', e);
+            errorData = { message: errorText || 'Unknown error occurred' };
+          }
           console.error('Error updating item quantity in cart:', errorData.message);
         }
       } catch (error) {
@@ -331,7 +389,7 @@ export const CartProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await fetch('/api/cart', {
+        const response = await fetch('/api/cart/clear', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -340,7 +398,14 @@ export const CartProvider = ({ children }) => {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
+          const errorText = await response.text(); // Use text() first to avoid JSON parsing errors
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            console.error('Error parsing error response:', e);
+            errorData = { message: errorText || 'Unknown error occurred' };
+          }
           console.error('Error clearing cart:', errorData.message);
         }
       } catch (error) {
@@ -350,19 +415,19 @@ export const CartProvider = ({ children }) => {
   };
 
   const getTotalItems = () => {
-    return state.items.reduce((total, item) => total + item.quantity, 0);
+    return state.items?.reduce((total, item) => total + item.quantity, 0) || 0;
   };
 
   const getTotalPrice = () => {
-    return state.items.reduce((total, item) => total + (item.plant.price * item.quantity), 0);
+    return state.items?.reduce((total, item) => total + (item.plant.price * item.quantity), 0) || 0;
   };
 
   const isInCart = (plantId) => {
-    return state.items.some(item => item.plant._id === plantId);
-  };
+    return state.items?.some(item => item.plant._id === plantId) || false;
+ };
 
   const getCartItems = () => {
-    return state.items;
+    return state.items || [];
   };
 
   return (

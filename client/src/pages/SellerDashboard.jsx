@@ -21,6 +21,14 @@ const SellerDashboard = () => {
     image: null,
     imageUrl: ''
   });
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
+  const [currentOrderId, setCurrentOrderId] = useState(null);
+  const [trackingData, setTrackingData] = useState({
+    expectedDeliveryDate: '',
+    currentLocation: '',
+    status: '',
+    notes: ''
+  });
   const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
@@ -311,6 +319,76 @@ const SellerDashboard = () => {
     } catch (error) {
       console.error('Error updating order status:', error);
     }
+  };
+
+  const updateTrackingInfo = async (orderId, trackingInfo) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch(`/api/orders/${orderId}/tracking`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(trackingInfo)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update the order tracking info in the local state
+        setOrders(orders.map(order => 
+          order._id === orderId ? { ...order, trackingInfo: data.data.trackingInfo } : order
+        ));
+        setShowTrackingModal(false);
+        setTrackingData({
+          expectedDeliveryDate: '',
+          currentLocation: '',
+          status: '',
+          notes: ''
+        });
+      } else {
+        console.error('Error updating tracking info:', data.message);
+      }
+    } catch (error) {
+      console.error('Error updating tracking info:', error);
+    }
+  };
+
+  const handleTrackingSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    // Determine the status to use - prioritize the dropdown selection
+    let statusToUse = trackingData.status;
+    if (!statusToUse) {
+      // If no status selected in dropdown, use the order status
+      const order = orders.find(o => o._id === currentOrderId);
+      statusToUse = order?.orderStatus || '';
+    }
+
+    const trackingInfo = {
+      ...(trackingData.expectedDeliveryDate && { expectedDeliveryDate: trackingData.expectedDeliveryDate }),
+      ...(trackingData.currentLocation && { currentLocation: trackingData.currentLocation }),
+      ...(statusToUse && { status: statusToUse }),
+      ...(trackingData.notes && { notes: trackingData.notes })
+    };
+
+    await updateTrackingInfo(currentOrderId, trackingInfo);
+  };
+
+  const openTrackingModal = (orderId) => {
+    setCurrentOrderId(orderId);
+    setShowTrackingModal(true);
   };
 
   const getStatusColor = (status) => {
@@ -629,6 +707,12 @@ const SellerDashboard = () => {
                             </button>
                           </>
                         )}
+                        <button
+                          onClick={() => openTrackingModal(order._id)}
+                          className="px-3 py-1 text-xs rounded bg-purple-100 text-purple-800 hover:bg-purple-200"
+                        >
+                          Update Tracking
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -779,9 +863,100 @@ const SellerDashboard = () => {
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-70"
                     >
                       {isEditing ? 'Update Plant' : 'Add Plant'}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Tracking Update Modal */}
+        <AnimatePresence>
+          {showTrackingModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+              onClick={() => setShowTrackingModal(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-lg shadow-xl w-full max-w-md p-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Update Tracking Information</h3>
+                
+                <form onSubmit={handleTrackingSubmit}>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Expected Delivery Date</label>
+                      <input
+                        type="date"
+                        value={trackingData.expectedDeliveryDate}
+                        onChange={(e) => setTrackingData({...trackingData, expectedDeliveryDate: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Current Location</label>
+                      <input
+                        type="text"
+                        value={trackingData.currentLocation}
+                        onChange={(e) => setTrackingData({...trackingData, currentLocation: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        placeholder="Enter current location of shipment"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                      <select
+                        value={trackingData.status}
+                        onChange={(e) => setTrackingData({...trackingData, status: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      >
+                        <option value="">Select Status</option>
+                        <option value="Order Placed">Order Placed</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Out for Delivery">Out for Delivery</option>
+                        <option value="Delivered">Delivered</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                      <textarea
+                        value={trackingData.notes}
+                        onChange={(e) => setTrackingData({...trackingData, notes: e.target.value})}
+                        rows="3"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        placeholder="Additional notes about the shipment"
+                      ></textarea>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowTrackingModal(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                    >
+                      Update Tracking
                     </button>
                   </div>
                 </form>

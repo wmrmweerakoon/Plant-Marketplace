@@ -197,6 +197,71 @@ const MyOrders = () => {
                       <div className="text-lg font-semibold text-gray-900">${order.totalAmount.toFixed(2)}</div>
                     </div>
                   </div>
+
+                  {/* Tracking Information Section */}
+                  {order.trackingInfo && (
+                    <div className="border-t border-gray-200 pt-4 mt-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 0 016 0z" />
+                        </svg>
+                        Tracking Information
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <div>
+                            <span className="text-gray-600">Expected Delivery:</span>
+                            <div className="font-medium">
+                              {order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString() : 'Not set'}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                          </svg>
+                          <div>
+                            <span className="text-gray-600">Current Status:</span>
+                            <div className="font-medium">{order.trackingInfo.status || 'Not updated'}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <div>
+                            <span className="text-gray-600">Current Location:</span>
+                            <div className="font-medium">{order.trackingInfo.currentLocation || 'Not updated'}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Tracking History Timeline */}
+                      {order.trackingInfo.locationHistory && order.trackingInfo.locationHistory.length > 0 && (
+                        <div className="mt-4">
+                          <h5 className="text-sm font-medium text-gray-700 mb-2">Tracking History</h5>
+                          <div className="space-y-3">
+                            {[...order.trackingInfo.locationHistory].reverse().map((history, index) => (
+                              <div key={index} className="flex items-start border-l-2 border-gray-200 pl-4 py-1 ml-3">
+                                <div className="flex-shrink-0 w-3 h-3 bg-blue-500 rounded-full mt-1.5 mr-3 -ml-10"></div>
+                                <div className="text-sm">
+                                  <div className="font-medium">{history.status}</div>
+                                  <div className="text-gray-600">{history.location}</div>
+                                  {history.notes && <div className="text-gray-500 text-xs">{history.notes}</div>}
+                                  <div className="text-gray-400 text-xs">{new Date(history.timestamp).toLocaleString()}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </AnimatePresence>

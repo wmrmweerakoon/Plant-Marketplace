@@ -373,10 +373,98 @@ export const CartProvider = ({ children }) => {
             console.error('Error parsing error response:', e);
             errorData = { message: errorText || 'Unknown error occurred' };
           }
-          console.error('Error updating item quantity in cart:', errorData.message);
+          
+          // If item is not found in cart, try to add it first
+          if (errorData.message && errorData.message.includes('Item not found in cart')) {
+            // First, get plant information to check stock availability
+            try {
+              const plantResponse = await fetch(`/api/plants/${plantId}`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+
+              if (plantResponse.ok) {
+                const plantData = await plantResponse.json();
+                const availableStock = plantData.data?.stock || 0;
+                
+                // Check if requested quantity is available in stock
+                if (quantity > availableStock) {
+                  console.error(`Error adding item to cart: Only ${availableStock} items available in stock`);
+                  // Revert the local state change since we can't add more than available stock
+                  // We'll need to find the previous quantity from the cart state
+                  const prevItem = state.items.find(item => item.plant && item.plant._id === plantId);
+                  if (prevItem) {
+                    dispatch({ type: 'UPDATE_QUANTITY', payload: { plantId, quantity: prevItem.quantity } });
+                  } else {
+                    dispatch({ type: 'REMOVE_FROM_CART', payload: plantId });
+                  }
+                  return;
+                }
+              }
+            } catch (err) {
+              console.error('Error fetching plant data to check stock:', err);
+            }
+
+            // Try to add the item to the cart first
+            const addItemResponse = await fetch('/api/cart/add', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                plantId: plantId,
+                quantity: quantity
+              })
+            });
+
+            if (!addItemResponse.ok) {
+              const addItemErrorText = await addItemResponse.text();
+              let addItemErrorData;
+              try {
+                addItemErrorData = JSON.parse(addItemErrorText);
+              } catch (e) {
+                console.error('Error parsing add item error response:', e);
+                addItemErrorData = { message: addItemErrorText || 'Unknown error occurred' };
+              }
+              
+              if (addItemErrorData.message && addItemErrorData.message.includes('Only')) {
+                console.error('Error adding item to cart:', addItemErrorData.message);
+                // Revert the local state change since we can't add more than available stock
+                // We'll need to find the previous quantity from the cart state
+                const prevItem = state.items.find(item => item.plant && item.plant._id === plantId);
+                if (prevItem) {
+                  dispatch({ type: 'UPDATE_QUANTITY', payload: { plantId, quantity: prevItem.quantity } });
+                } else {
+                  dispatch({ type: 'REMOVE_FROM_CART', payload: plantId });
+                }
+              } else {
+                console.error('Error adding item to cart:', addItemErrorData.message);
+              }
+            }
+          } else {
+            console.error('Error updating item quantity in cart:', errorData.message);
+            // Revert the local state change since the update failed
+            // We'll need to find the previous quantity from the cart state
+            const prevItem = state.items.find(item => item.plant && item.plant._id === plantId);
+            if (prevItem) {
+              dispatch({ type: 'UPDATE_QUANTITY', payload: { plantId, quantity: prevItem.quantity } });
+            } else {
+              dispatch({ type: 'REMOVE_FROM_CART', payload: plantId });
+            }
+          }
         }
       } catch (error) {
         console.error('Error updating item quantity in cart:', error);
+        // Revert the local state change since the update failed
+        // We'll need to find the previous quantity from the cart state
+        const prevItem = state.items.find(item => item.plant && item.plant._id === plantId);
+        if (prevItem) {
+          dispatch({ type: 'UPDATE_QUANTITY', payload: { plantId, quantity: prevItem.quantity } });
+        } else {
+          dispatch({ type: 'REMOVE_FROM_CART', payload: plantId });
+        }
       }
     }
   };

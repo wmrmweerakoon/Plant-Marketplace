@@ -231,15 +231,45 @@ export const CartProvider = ({ children }) => {
           dispatch({ type: 'SET_CART_ITEMS', payload: data.data.items });
         } else {
           console.warn('Invalid cart data received from backend:', data);
-          dispatch({ type: 'SET_CART_ITEMS', payload: [] });
+          // Fallback to sessionStorage if backend data is invalid
+          const savedCart = sessionStorage.getItem('cart');
+          if (savedCart) {
+            try {
+              const parsedCart = JSON.parse(savedCart);
+              dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
+            } catch (parseError) {
+              console.error('Error parsing fallback cart from sessionStorage:', parseError);
+            }
+          } else {
+            // Initialize with empty cart if no fallback available
+            dispatch({ type: 'SET_CART_ITEMS', payload: [] });
+          }
         }
       } else {
         console.error('Failed to load cart from backend:', response.status, response.statusText);
-        dispatch({ type: 'SET_CART_ITEMS', payload: [] });
+        // If loading from backend fails, try to load from sessionStorage as fallback
+        const savedCart = sessionStorage.getItem('cart');
+        if (savedCart) {
+          try {
+            const parsedCart = JSON.parse(savedCart);
+            dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
+          } catch (parseError) {
+            console.error('Error parsing fallback cart from sessionStorage:', parseError);
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading user cart from backend:', error);
-      dispatch({ type: 'SET_CART_ITEMS', payload: [] });
+      // If loading from backend fails, try to load from sessionStorage as fallback
+      const savedCart = sessionStorage.getItem('cart');
+      if (savedCart) {
+        try {
+          const parsedCart = JSON.parse(savedCart);
+          dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
+        } catch (parseError) {
+          console.error('Error parsing fallback cart from sessionStorage:', parseError);
+        }
+      }
     }
   };
 
@@ -247,12 +277,6 @@ export const CartProvider = ({ children }) => {
   const initializeUserCart = () => {
     loadUserCartFromBackend();
   };
-
-  // Function to handle logout and reset cart state
-  const handleLogout = () => {
-    dispatch({ type: 'SET_CART_ITEMS', payload: [] }); // Reset cart to empty
-    isInitialLoadRef.current = true; // Reset the initial load flag
- };
 
   const addToCart = async (plant, quantity = 1) => {
     // Check if user is logged in
@@ -373,98 +397,10 @@ export const CartProvider = ({ children }) => {
             console.error('Error parsing error response:', e);
             errorData = { message: errorText || 'Unknown error occurred' };
           }
-          
-          // If item is not found in cart, try to add it first
-          if (errorData.message && errorData.message.includes('Item not found in cart')) {
-            // First, get plant information to check stock availability
-            try {
-              const plantResponse = await fetch(`/api/plants/${plantId}`, {
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              });
-
-              if (plantResponse.ok) {
-                const plantData = await plantResponse.json();
-                const availableStock = plantData.data?.stock || 0;
-                
-                // Check if requested quantity is available in stock
-                if (quantity > availableStock) {
-                  console.error(`Error adding item to cart: Only ${availableStock} items available in stock`);
-                  // Revert the local state change since we can't add more than available stock
-                  // We'll need to find the previous quantity from the cart state
-                  const prevItem = state.items.find(item => item.plant && item.plant._id === plantId);
-                  if (prevItem) {
-                    dispatch({ type: 'UPDATE_QUANTITY', payload: { plantId, quantity: prevItem.quantity } });
-                  } else {
-                    dispatch({ type: 'REMOVE_FROM_CART', payload: plantId });
-                  }
-                  return;
-                }
-              }
-            } catch (err) {
-              console.error('Error fetching plant data to check stock:', err);
-            }
-
-            // Try to add the item to the cart first
-            const addItemResponse = await fetch('/api/cart/add', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                plantId: plantId,
-                quantity: quantity
-              })
-            });
-
-            if (!addItemResponse.ok) {
-              const addItemErrorText = await addItemResponse.text();
-              let addItemErrorData;
-              try {
-                addItemErrorData = JSON.parse(addItemErrorText);
-              } catch (e) {
-                console.error('Error parsing add item error response:', e);
-                addItemErrorData = { message: addItemErrorText || 'Unknown error occurred' };
-              }
-              
-              if (addItemErrorData.message && addItemErrorData.message.includes('Only')) {
-                console.error('Error adding item to cart:', addItemErrorData.message);
-                // Revert the local state change since we can't add more than available stock
-                // We'll need to find the previous quantity from the cart state
-                const prevItem = state.items.find(item => item.plant && item.plant._id === plantId);
-                if (prevItem) {
-                  dispatch({ type: 'UPDATE_QUANTITY', payload: { plantId, quantity: prevItem.quantity } });
-                } else {
-                  dispatch({ type: 'REMOVE_FROM_CART', payload: plantId });
-                }
-              } else {
-                console.error('Error adding item to cart:', addItemErrorData.message);
-              }
-            }
-          } else {
-            console.error('Error updating item quantity in cart:', errorData.message);
-            // Revert the local state change since the update failed
-            // We'll need to find the previous quantity from the cart state
-            const prevItem = state.items.find(item => item.plant && item.plant._id === plantId);
-            if (prevItem) {
-              dispatch({ type: 'UPDATE_QUANTITY', payload: { plantId, quantity: prevItem.quantity } });
-            } else {
-              dispatch({ type: 'REMOVE_FROM_CART', payload: plantId });
-            }
-          }
+          console.error('Error updating item quantity in cart:', errorData.message);
         }
       } catch (error) {
         console.error('Error updating item quantity in cart:', error);
-        // Revert the local state change since the update failed
-        // We'll need to find the previous quantity from the cart state
-        const prevItem = state.items.find(item => item.plant && item.plant._id === plantId);
-        if (prevItem) {
-          dispatch({ type: 'UPDATE_QUANTITY', payload: { plantId, quantity: prevItem.quantity } });
-        } else {
-          dispatch({ type: 'REMOVE_FROM_CART', payload: plantId });
-        }
       }
     }
   };
@@ -528,8 +464,7 @@ export const CartProvider = ({ children }) => {
       getTotalPrice,
       isInCart,
       getCartItems,
-      initializeUserCart,
-      handleLogout: handleLogout
+      initializeUserCart
     }}>
       {children}
     </CartContext.Provider>

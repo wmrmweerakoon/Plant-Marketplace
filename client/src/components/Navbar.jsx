@@ -7,7 +7,7 @@ const Navbar = ({ toggleTheme, darkMode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const { getTotalItems, handleLogout: resetCartState } = useCart();
+  const { getTotalItems } = useCart();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -32,7 +32,6 @@ const Navbar = ({ toggleTheme, darkMode }) => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    resetCartState(); // Reset cart state when logging out
     setUser(null);
   };
 

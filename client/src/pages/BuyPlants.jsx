@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PlantCard from '../components/PlantCard';
 
+// Import the background image
+import backgroundImage from '../assets/modern, organized indoor plant nursery.png';
+
 const BuyPlants = () => {
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,18 +56,22 @@ const BuyPlants = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-green-50 to-white">
-        <div className="text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-green-50 to-white relative overflow-hidden"
+           style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+        <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-emerald-100/20 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
+        <div className="text-center relative z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading plants...</p>
+          <p className="mt-4 text-gray-700 font-medium drop-shadow-sm">Loading plants...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white relative overflow-hidden pt-16">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white relative overflow-hidden pt-16"
+         style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Decorative elements */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-emerald-100/20 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
       <div className="absolute top-20 left-10 w-32 h-32 bg-green-200 rounded-full opacity-20 blur-xl"></div>
       <div className="absolute bottom-20 right-10 w-40 h-40 bg-emerald-200 rounded-full opacity-20 blur-xl"></div>
 

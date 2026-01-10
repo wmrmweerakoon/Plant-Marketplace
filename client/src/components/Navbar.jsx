@@ -42,7 +42,7 @@ const Navbar = ({ toggleTheme, darkMode }) => {
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center group">
               <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-2 rounded-lg transform group-hover:scale-105 transition-transform duration-300">
-                <span className="text-xl font-bold text-white">🌿 Plant Marketplace</span>
+                <span className="text-xl font-bold text-white">🌿 LeafLink</span>
               </div>
             </Link>
           </div>

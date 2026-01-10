@@ -17,7 +17,7 @@ const Footer = () => {
               <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-2 rounded-lg">
                 <span className="text-xl font-bold text-white">🌿</span>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">Plant Marketplace</h3>
+              <h3 className="text-2xl font-bold text-gray-900">LeafLink</h3>
             </div>
             <p className="text-gray-600 leading-relaxed">
               Connecting plant lovers to share, buy, and sell beautiful plants in a trusted community.
@@ -115,7 +115,7 @@ const Footer = () => {
                 <span className="mr-2 mt-1">📍</span> 123 Garden Street, Plant City
               </li>
               <li className="flex items-start">
-                <span className="mr-2 mt-1">✉️</span> Email: info@plantmarketplace.com
+                <span className="mr-2 mt-1">✉️</span> Email: info@leaflink.com
               </li>
               <li className="flex items-start">
                 <span className="mr-2 mt-1">📞</span> Phone: +1 (55) 123-4567
@@ -129,7 +129,7 @@ const Footer = () => {
         
         <div className="border-t border-green-200 pt-8 mt-8 text-center text-gray-600">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-sm">&copy; 2025 Plant Marketplace. All rights reserved.</p>
+            <p className="text-sm">&copy; 2025 LeafLink. All rights reserved.</p>
             <div className="flex space-x-6 text-sm">
               <Link to="/privacy" className="hover:text-green-700 transition-colors duration-300">Privacy Policy</Link>
               <Link to="/terms" className="hover:text-green-700 transition-colors duration-300">Terms of Service</Link>

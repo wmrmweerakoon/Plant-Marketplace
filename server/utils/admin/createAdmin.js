@@ -14,7 +14,7 @@ const createAdminUser = async () => {
     // Create admin user with default credentials
     const adminData = {
       name: 'Admin User',
-      email: 'admin@plantmarketplace.com',
+      email: 'admin@leaflink.com',
       password: 'admin123', // Default password - should be changed after first login
       role: 'admin'
     };
@@ -49,7 +49,7 @@ if (require.main === module) {
   
   const connectDB = async () => {
     try {
-      const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/plant-marketplace';
+      const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/leaflink';
       await mongoose.connect(mongoURI);
       console.log('MongoDB connected for admin creation');
       

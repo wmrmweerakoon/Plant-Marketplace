@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
  */
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/plant-marketplace';
+    const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/leaflink';
     const conn = await mongoose.connect(mongoURI);
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     

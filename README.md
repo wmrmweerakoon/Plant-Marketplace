@@ -1,6 +1,6 @@
-# Plant Marketplace
+# LeafLink
 
-This is a plant marketplace application built with React and Node.js.
+This is a LeafLink application built with React and Node.js.
 
 ## Features
 - Browse and search for plants

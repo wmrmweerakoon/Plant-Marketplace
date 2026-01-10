@@ -78,7 +78,7 @@ return (
             </div>
             <h1 className="text-4xl font-bold text-white bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent drop-shadow-2xl">Admin Dashboard</h1>
           </div>
-          <p className="mt-2 text-white text-lg font-medium drop-shadow-lg bg-white/20 px-4 py-2 rounded-lg inline-block">Manage the plant marketplace platform</p>
+          <p className="mt-2 text-white text-lg font-medium drop-shadow-lg bg-white/20 px-4 py-2 rounded-lg inline-block">Manage the LeafLink platform</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">

@@ -49,7 +49,9 @@ const Cart = () => {
   React.useEffect(() => {
     const initialSelections = {};
     (cart.items || []).forEach(item => {
-      initialSelections[item.plant._id] = true; // By default, select all items
+      if (item.plant && item.plant._id) {
+        initialSelections[item.plant._id] = true; // By default, select all items
+      }
     });
     setSelectedItems(initialSelections);
   }, [cart.items]);
@@ -64,7 +66,9 @@ const Cart = () => {
   const selectAllItems = () => {
     const newSelections = {};
     (cart.items || []).forEach(item => {
-      newSelections[item.plant._id] = true;
+      if (item.plant && item.plant._id) {
+        newSelections[item.plant._id] = true;
+      }
     });
     setSelectedItems(newSelections);
   };
@@ -72,17 +76,19 @@ const Cart = () => {
   const deselectAllItems = () => {
     const newSelections = {};
     (cart.items || []).forEach(item => {
-      newSelections[item.plant._id] = false;
+      if (item.plant && item.plant._id) {
+        newSelections[item.plant._id] = false;
+      }
     });
     setSelectedItems(newSelections);
   };
 
   const getSelectedItems = () => {
-    return (cart.items || []).filter(item => selectedItems[item.plant._id]);
+    return (cart.items || []).filter(item => item.plant && selectedItems[item.plant._id]);
   };
 
   const getSelectedTotalPrice = () => {
-    return getSelectedItems().reduce((total, item) => total + (item.plant.price * item.quantity), 0);
+    return getSelectedItems().reduce((total, item) => total + (item.plant?.price * item.quantity || 0), 0);
   };
 
   const handleCheckout = () => {
@@ -155,15 +161,15 @@ const Cart = () => {
                   <div className="flex items-center space-x-3">
                     <input
                       type="checkbox"
-                      checked={(cart.items || []).length > 0 && (cart.items || []).every(item => selectedItems[item.plant._id])}
+                      checked={(cart.items || []).length > 0 && (cart.items || []).every(item => item.plant && selectedItems[item.plant._id])}
                       onChange={() => {
-                        if ((cart.items || []).length > 0 && (cart.items || []).every(item => selectedItems[item.plant._id])) {
+                        if ((cart.items || []).length > 0 && (cart.items || []).every(item => item.plant && selectedItems[item.plant._id])) {
                           deselectAllItems();
                         } else {
                           selectAllItems();
                         }
                       }}
-                      className="h-5 w-5 text-green-600 rounded focus:ring-green-500 border-gray-300"
+                      className="h-5 w-5 text-green-600 rounded focus:ring-green-500 border-gray-30"
                     />
                     <span className="text-base font-medium text-gray-800">Select All</span>
                   </div>
@@ -172,7 +178,7 @@ const Cart = () => {
                   </div>
                 </div>
                 <AnimatePresence>
-                  {(cart.items || []).map((item) => (
+                  {(cart.items || []).filter(item => item.plant).map((item) => (
                     <motion.div
                       key={item.plant._id}
                       initial={{ opacity: 0, height: 0 }}
@@ -210,9 +216,9 @@ const Cart = () => {
                         <h3 className="text-lg font-bold text-gray-900">{item.plant.name}</h3>
                         <p className="text-gray-600 text-sm">{item.plant.category}</p>
                         <p className="mt-2 text-xl font-bold text-green-700">
-                          ${(item.plant.price * item.quantity).toFixed(2)}
+                          ${(item.plant?.price * item.quantity || 0).toFixed(2)}
                           <span className="text-gray-500 text-sm font-normal ml-2 block">
-                            (${item.plant.price.toFixed(2)} × {item.quantity})
+                            ${(item.plant?.price || 0).toFixed(2)} × {item.quantity}
                           </span>
                         </p>
                       </div>
@@ -239,7 +245,7 @@ const Cart = () => {
                           className="flex items-center text-red-600 hover:text-red-800 font-medium transition-colors duration-200"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                           Remove
                         </button>

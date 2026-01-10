@@ -13,13 +13,18 @@ const cartReducer = (state, action) => {
     
     case 'ADD_TO_CART':
       const items = state.items || [];
-      const existingItem = items.find(item => item.plant._id === action.payload.plant._id);
+      // Add null check for action.payload.plant
+      if (!action.payload.plant || !action.payload.plant._id) {
+        console.warn('Cannot add item to cart: Invalid plant data', action.payload);
+        return state;
+      }
+      const existingItem = items.find(item => item.plant && item.plant._id === action.payload.plant._id);
       
       if (existingItem) {
         return {
           ...state,
           items: items.map(item =>
-            item.plant._id === action.payload.plant._id
+            item.plant && item.plant._id === action.payload.plant._id
               ? { ...item, quantity: item.quantity + action.payload.quantity }
               : item
           )
@@ -34,14 +39,14 @@ const cartReducer = (state, action) => {
     case 'REMOVE_FROM_CART':
       return {
         ...state,
-        items: (state.items || []).filter(item => item.plant._id !== action.payload)
+        items: (state.items || []).filter(item => item.plant && item.plant._id !== action.payload)
       };
 
     case 'UPDATE_QUANTITY':
       return {
         ...state,
         items: (state.items || []).map(item =>
-          item.plant._id === action.payload.plantId
+          item.plant && item.plant._id === action.payload.plantId
             ? { ...item, quantity: action.payload.quantity }
             : item
         )
@@ -124,7 +129,13 @@ export const CartProvider = ({ children }) => {
       const localItems = state.items || [];
       if (backendCart && Array.isArray(backendCart)) {
         for (const localItem of localItems) {
-          const backendItem = backendCart.find(item => item.plant._id === localItem.plant._id);
+          // Add null check for localItem.plant
+          if (!localItem.plant || !localItem.plant._id) {
+            console.warn('Local cart item has invalid plant data:', localItem);
+            continue;
+          }
+          
+          const backendItem = backendCart.find(item => item.plant && item.plant._id === localItem.plant._id);
           if (!backendItem) {
             // Item doesn't exist in backend, add it
             await fetch('/api/cart/add', {
@@ -155,7 +166,13 @@ export const CartProvider = ({ children }) => {
 
         // Find items that exist in backend but not in local state (need to be removed)
         for (const backendItem of backendCart) {
-          const localItem = localItems.find(item => item.plant._id === backendItem.plant._id);
+          // Add null check for backendItem.plant
+          if (!backendItem.plant || !backendItem.plant._id) {
+            console.warn('Backend cart item has invalid plant data:', backendItem);
+            continue;
+          }
+          
+          const localItem = localItems.find(item => item.plant && item.plant._id === backendItem.plant._id);
           if (!localItem) {
             // Item exists in backend but not in local state, remove it
             await fetch(`/api/cart/remove/${backendItem.plant._id}`, {
@@ -170,6 +187,12 @@ export const CartProvider = ({ children }) => {
       } else {
         // If backendCart is not properly defined, we might need to send all local items to backend
         for (const localItem of localItems) {
+          // Add null check for localItem.plant
+          if (!localItem.plant || !localItem.plant._id) {
+            console.warn('Local cart item has invalid plant data:', localItem);
+            continue;
+          }
+          
           await fetch('/api/cart/add', {
             method: 'POST',
             headers: {
@@ -419,11 +442,11 @@ export const CartProvider = ({ children }) => {
   };
 
   const getTotalPrice = () => {
-    return state.items?.reduce((total, item) => total + (item.plant.price * item.quantity), 0) || 0;
+    return state.items?.reduce((total, item) => total + (item.plant?.price * item.quantity || 0), 0) || 0;
   };
 
   const isInCart = (plantId) => {
-    return state.items?.some(item => item.plant._id === plantId) || false;
+    return state.items?.some(item => item.plant && item.plant._id === plantId) || false;
  };
 
   const getCartItems = () => {

@@ -441,10 +441,10 @@ const SellerDashboard = ({ setHideNavbar }) => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 pt-24 relative overflow-hidden"
          style={{ backgroundImage: `url(${sellerImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Animated background elements */}
-      <div className="absolute -top-40 -left-40 w-80 h-80 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+      <div className="absolute -top-40 -left-40 w-80 h-80 bg-green-200 rounded-full mix-blur-multiply filter blur-xl opacity-70 animate-blob"></div>
       <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-emerald-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-      <div className="absolute top-20 right-20 w-80 h-80 bg-teal-20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-emerald-100/50 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
+      <div className="absolute top-20 right-20 w-80 h-80 bg-teal-20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-400"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/70 to-emerald-100/70 z-0"></div> {/* Increased opacity for better content visibility */}
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
@@ -454,14 +454,14 @@ const SellerDashboard = ({ setHideNavbar }) => {
           className="mb-8"
         >
           <div className="flex items-center space-x-3 mb-2">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center shadow-md">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">Seller Dashboard</h1>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-800 to-emerald-800 bg-clip-text text-transparent">Seller Dashboard</h1>
           </div>
-          <p className="mt-2 text-gray-600">Manage your plant listings and sales</p>
+          <p className="mt-2 text-gray-700 font-medium">Manage your plant listings and sales</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -551,100 +551,151 @@ const SellerDashboard = ({ setHideNavbar }) => {
           >
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center space-x-3">
-                <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center shadow-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                   </svg>
                 </div>
-                <h2 className="text-xl font-semibold text-gray-800">Your Plant Listings</h2>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800">Your Plant Listings</h2>
+                  <p className="text-sm text-gray-600">Manage your plant inventory and details</p>
+                </div>
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsModalOpen(true)}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-emerald-700 transition duration-200 shadow-md"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-5 py-2.5 rounded-xl hover:from-green-700 hover:to-emerald-700 transition duration-200 shadow-md font-medium flex items-center space-x-2"
               >
-                Add Plant
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>Add Plant</span>
               </motion.button>
             </div>
 
             {plants.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">No plants listed yet. Add your first plant to get started!</p>
+              <div className="text-center py-16 rounded-xl bg-white/30 backdrop-blur-sm border border-white/50">
+                <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-green-100 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">No plants listed yet</h3>
+                <p className="text-gray-600 mb-4">Get started by adding your first plant to your store</p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-5 py-2.5 rounded-xl hover:from-green-700 hover:to-emerald-700 transition duration-200 shadow-md font-medium"
+                >
+                  Add Your First Plant
+                </motion.button>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-lg border border-gray-200">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50/50">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Plant Name
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Stock
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Care Level
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white/50 divide-y divide-gray-200/50">
-                    {plants.map((plant) => (
-                      <tr key={plant._id} className="hover:bg-gray-50/30 transition-colors duration-200">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {plant.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            plant.category === 'Vegetable' ? 'bg-green-100 text-green-800' :
-                            plant.category === 'Flower' ? 'bg-pink-100 text-pink-800' :
-                            'bg-blue-100 text-blue-800'
-                          }`}>
-                            {plant.category}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ${plant.price.toFixed(2)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {plant.stock}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            plant.careLevel === 'Easy' ? 'bg-green-100 text-green-800' :
-                            plant.careLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {plant.careLevel}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex space-x-2">
-                          <button 
-                            onClick={() => handleEdit(plant)}
-                            className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
-                          >
-                            Edit
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(plant._id)}
-                            className="text-red-600 hover:text-red-900 ml-2 transition-colors duration-200"
-                          >
-                            Delete
-                          </button>
-                        </td>
+              <div className="overflow-hidden rounded-xl border border-gray-200/50 shadow-sm bg-white/50 backdrop-blur-sm">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200/50">
+                    <thead className="bg-white/70 backdrop-blur-sm">
+                      <tr>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          Plant Name
+                        </th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          Category
+                        </th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-70 uppercase tracking-wider">
+                          Price
+                        </th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          Stock
+                        </th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-70 uppercase tracking-wider">
+                          Care Level
+                        </th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          Actions
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200/50 bg-white/40 backdrop-blur-sm">
+                      {plants.map((plant) => (
+                        <tr key={plant._id} className="hover:bg-white/70 transition-colors duration-200">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10 rounded-lg overflow-hidden mr-3">
+                                {plant.imageUrl ? (
+                                  <img
+                                    src={plant.imageUrl}
+                                    alt={plant.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-gray-50 text-xs bg-gray-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                  </div>
+                                )}
+                              </div>
+                              <span>{plant.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              plant.category === 'Vegetable' ? 'bg-green-100 text-green-800' :
+                              plant.category === 'Flower' ? 'bg-pink-100 text-pink-80' :
+                              'bg-blue-100 text-blue-800'
+                            }`}>
+                              {plant.category}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            ${plant.price.toFixed(2)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              plant.stock > 10 ? 'bg-green-100 text-green-800' :
+                              plant.stock > 0 ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {plant.stock} in stock
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              plant.careLevel === 'Easy' ? 'bg-green-100 text-green-800' :
+                              plant.careLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {plant.careLevel}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-3 py-4">
+                            <button 
+                              onClick={() => handleEdit(plant)}
+                              className="text-blue-600 hover:text-blue-900 transition-colors duration-200 flex items-center space-x-1"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 0 0-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                              <span>Edit</span>
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(plant._id)}
+                              className="text-red-600 hover:text-red-900 transition-colors duration-200 flex items-center space-x-1"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              <span>Delete</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </motion.div>
@@ -656,52 +707,74 @@ const SellerDashboard = ({ setHideNavbar }) => {
             className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/50 p-6"
           >
             <div className="flex items-center space-x-3 mb-6">
-              <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-gray-800">Manage Sales</h2>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800">Manage Sales</h2>
+                <p className="text-sm text-gray-600">Track and update your customer orders</p>
+              </div>
             </div>
 
             {orders.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">No orders yet. When customers purchase your plants, they'll appear here.</p>
+              <div className="text-center py-16 rounded-xl bg-white/30 backdrop-blur-sm border border-white/50">
+                <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-blue-100 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">No orders yet</h3>
+                <p className="text-gray-600 mb-4">When customers purchase your plants, they'll appear here for you to manage.</p>
               </div>
             ) : (
               <div className="space-y-6">
                 {orders.map((order) => (
-                  <div key={order._id} className="border border-gray-200/50 rounded-2xl p-6 bg-white/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow duration-200">
-                    <div className="flex flex-wrap justify-between items-start mb-4">
+                  <div key={order._id} className="border border-gray-200/50 rounded-2xl p-6 bg-white/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <div className="flex flex-wrap justify-between items-start mb-4 pb-4 border-b border-gray-200/50">
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900">Order #{order._id.substring(0, 8)}</h3>
-                        <p className="text-sm text-gray-600">Customer: {order.buyer?.name || 'N/A'}</p>
+                        <h3 className="text-lg font-bold text-gray-900">Order #{order._id.substring(0, 8)}</h3>
+                        <p className="text-sm text-gray-700 mt-1">Customer: <span className="font-medium">{order.buyer?.name || 'N/A'}</span></p>
                         <p className="text-sm text-gray-600">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
                       </div>
-                      <div className="flex items-center space-x-2 mt-2 sm:mt-0">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.orderStatus)}`}>
-                          {order.orderStatus}
-                        </span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          order.paymentStatus === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {order.paymentStatus}
-                        </span>
+                      <div className="flex items-center space-x-3 mt-2 sm:mt-0">
+                        <div className="flex flex-col items-end space-y-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.orderStatus)}`}>
+                            {order.orderStatus}
+                          </span>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            order.paymentStatus === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {order.paymentStatus}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">Shipping Address</h4>
-                      <p className="text-sm text-gray-600">{order.shippingAddress}</p>
+                    <div className="mb-6 pb-4 border-b border-gray-200/50">
+                      <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 0 016 0z" />
+                        </svg>
+                        <span>Shipping Address</span>
+                      </h4>
+                      <p className="text-sm text-gray-700 pl-6">{order.shippingAddress}</p>
                     </div>
 
-                    <div className="border-t border-gray-200/50 pt-4 mb-4">
-                      <h4 className="text-sm font-medium text-gray-700 mb-3">Order Items</h4>
+                    <div className="mb-6 pb-4 border-b border-gray-200/50">
+                      <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                        </svg>
+                        <span>Order Items</span>
+                      </h4>
                       <div className="space-y-3">
                         {order.items.map((item, index) => (
-                          <div key={index} className="flex items-center justify-between text-sm bg-white/50 rounded-lg p-3">
+                          <div key={index} className="flex items-center justify-between text-sm bg-white/70 rounded-xl p-4 shadow-sm">
                             <div className="flex items-center">
-                              <div className="w-12 h-12 bg-gray-200 rounded-md overflow-hidden mr-4">
+                              <div className="w-16 h-16 bg-gray-200 rounded-xl overflow-hidden mr-4 flex-shrink-0">
                                 {item.plant.imageUrl ? (
                                   <img
                                     src={item.plant.imageUrl}
@@ -710,30 +783,32 @@ const SellerDashboard = ({ setHideNavbar }) => {
                                   />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-gray-50 text-xs bg-gray-100">
-                                    No Image
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
                                   </div>
                                 )}
                               </div>
                               <div>
-                                <span className="font-medium text-gray-90">{item.plant.name}</span>
-                                <span className="text-gray-500 ml-2">Qty: {item.quantity}</span>
+                                <span className="font-medium text-gray-900 block">{item.plant.name}</span>
+                                <span className="text-gray-600 text-xs">Qty: {item.quantity}</span>
                               </div>
                             </div>
-                            <div className="text-gray-900 font-medium">${(item.price * item.quantity).toFixed(2)}</div>
+                            <div className="text-gray-900 font-bold">${(item.price * item.quantity).toFixed(2)}</div>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="border-t border-gray-200/50 pt-4 flex justify-between items-center">
-                      <div className="text-lg font-semibold text-gray-900">Total: ${order.totalAmount.toFixed(2)}</div>
+                    <div className="flex flex-wrap justify-between items-center pt-4 gap-4">
+                      <div className="text-lg font-bold text-gray-900">Total: <span className="text-green-600">${order.totalAmount.toFixed(2)}</span></div>
                       <div className="flex space-x-2 flex-wrap justify-end gap-2">
                         {order.orderStatus !== 'Delivered' && (
                           <>
                             <button
                               onClick={() => updateOrderStatus(order._id, 'Processing')}
                               disabled={order.orderStatus === 'Processing'}
-                              className={`px-3 py-1 text-xs rounded-lg ${
+                              className={`px-4 py-2 text-sm rounded-lg ${
                                 order.orderStatus === 'Processing'
                                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                   : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors duration-200'
@@ -744,7 +819,7 @@ const SellerDashboard = ({ setHideNavbar }) => {
                             <button
                               onClick={() => updateOrderStatus(order._id, 'Shipped')}
                               disabled={order.orderStatus === 'Shipped' || order.orderStatus === 'Delivered'}
-                              className={`px-3 py-1 text-xs rounded-lg ${
+                              className={`px-4 py-2 text-sm rounded-lg ${
                                 order.orderStatus === 'Shipped' || order.orderStatus === 'Delivered'
                                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                   : 'bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200'
@@ -755,7 +830,7 @@ const SellerDashboard = ({ setHideNavbar }) => {
                             <button
                               onClick={() => updateOrderStatus(order._id, 'Delivered')}
                               disabled={order.orderStatus === 'Delivered'}
-                              className={`px-3 py-1 text-xs rounded-lg ${
+                              className={`px-4 py-2 text-sm rounded-lg ${
                                 order.orderStatus === 'Delivered'
                                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                   : 'bg-green-100 text-green-800 hover:bg-green-200 transition-colors duration-200'
@@ -767,9 +842,12 @@ const SellerDashboard = ({ setHideNavbar }) => {
                         )}
                         <button
                           onClick={() => openTrackingModal(order._id)}
-                          className="px-3 py-1 text-xs rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors duration-200"
+                          className="px-4 py-2 text-sm rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors duration-200 flex items-center space-x-1"
                         >
-                          Update Tracking
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span>Tracking</span>
                         </button>
                       </div>
                     </div>

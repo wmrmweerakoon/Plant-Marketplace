@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import greenhouseImage from '../assets/modern, minimalist indoor greenhouse.png';
 
 // Floating leaf component
@@ -46,6 +47,22 @@ const FloatingLeavesBackground = () => {
 };
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  const handleBrowsePlants = () => {
+    navigate('/buy-plants');
+  };
+
+  const handleSellPlants = () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/seller-dashboard');
+    } else {
+      // If not logged in, redirect to register page
+      navigate('/register');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white relative overflow-hidden">
       {/* Floating leaves background */}
@@ -77,6 +94,7 @@ const Home = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={handleBrowsePlants}
                   className="bg-green-700 text-white px-8 py-3 rounded-lg font-medium hover:bg-green-800 transition duration-300 shadow-lg shadow-green-500/20 btn-animated"
                 >
                   Browse Plants
@@ -84,6 +102,7 @@ const Home = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={handleSellPlants}
                   className="border-2 border-green-700 text-green-700 px-8 py-3 rounded-lg font-medium hover:bg-green-50 transition duration-300 shadow-lg shadow-green-500/10 btn-animated"
                 >
                   Sell Plants

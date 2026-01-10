@@ -231,45 +231,15 @@ export const CartProvider = ({ children }) => {
           dispatch({ type: 'SET_CART_ITEMS', payload: data.data.items });
         } else {
           console.warn('Invalid cart data received from backend:', data);
-          // Fallback to sessionStorage if backend data is invalid
-          const savedCart = sessionStorage.getItem('cart');
-          if (savedCart) {
-            try {
-              const parsedCart = JSON.parse(savedCart);
-              dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
-            } catch (parseError) {
-              console.error('Error parsing fallback cart from sessionStorage:', parseError);
-            }
-          } else {
-            // Initialize with empty cart if no fallback available
-            dispatch({ type: 'SET_CART_ITEMS', payload: [] });
-          }
+          dispatch({ type: 'SET_CART_ITEMS', payload: [] });
         }
       } else {
         console.error('Failed to load cart from backend:', response.status, response.statusText);
-        // If loading from backend fails, try to load from sessionStorage as fallback
-        const savedCart = sessionStorage.getItem('cart');
-        if (savedCart) {
-          try {
-            const parsedCart = JSON.parse(savedCart);
-            dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
-          } catch (parseError) {
-            console.error('Error parsing fallback cart from sessionStorage:', parseError);
-          }
-        }
+        dispatch({ type: 'SET_CART_ITEMS', payload: [] });
       }
     } catch (error) {
       console.error('Error loading user cart from backend:', error);
-      // If loading from backend fails, try to load from sessionStorage as fallback
-      const savedCart = sessionStorage.getItem('cart');
-      if (savedCart) {
-        try {
-          const parsedCart = JSON.parse(savedCart);
-          dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
-        } catch (parseError) {
-          console.error('Error parsing fallback cart from sessionStorage:', parseError);
-        }
-      }
+      dispatch({ type: 'SET_CART_ITEMS', payload: [] });
     }
   };
 
@@ -277,6 +247,12 @@ export const CartProvider = ({ children }) => {
   const initializeUserCart = () => {
     loadUserCartFromBackend();
   };
+
+  // Function to handle logout and reset cart state
+  const handleLogout = () => {
+    dispatch({ type: 'SET_CART_ITEMS', payload: [] }); // Reset cart to empty
+    isInitialLoadRef.current = true; // Reset the initial load flag
+ };
 
   const addToCart = async (plant, quantity = 1) => {
     // Check if user is logged in
@@ -464,7 +440,8 @@ export const CartProvider = ({ children }) => {
       getTotalPrice,
       isInCart,
       getCartItems,
-      initializeUserCart
+      initializeUserCart,
+      handleLogout: handleLogout
     }}>
       {children}
     </CartContext.Provider>

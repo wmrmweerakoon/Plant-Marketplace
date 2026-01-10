@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
+import { toast } from 'react-toastify';
 
 // Import the background image
 import backgroundImage from '../assets/vibrant green seedling is just pushing through the soil.png';
@@ -38,7 +39,7 @@ const Register = () => {
     
     // Basic validation
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      toast.error('Passwords do not match');
       setIsLoading(false);
       return;
     }
@@ -64,14 +65,14 @@ const Register = () => {
       const data = await response.json();
       
       if (response.ok) {
-        alert('Registration successful! Please log in.');
-        navigate('/login');
+        toast.success('Registration successful! Redirecting to login...');
+        setTimeout(() => navigate('/login'), 1500);
       } else {
-        alert(data.message || 'Registration failed. Please try again.');
+        toast.error(data.message || 'Registration failed. Please try again.');
       }
     } catch (error) {
       console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
+      toast.error('Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

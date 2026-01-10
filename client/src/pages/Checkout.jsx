@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import PaymentForm from '../components/PaymentForm';
+import { toast } from 'react-toastify';
 
 // Import the background image
 import backgroundImage from '../assets/checkout.png';
@@ -97,12 +98,11 @@ const Checkout = () => {
     e.preventDefault();
     
     if (selectedItems.length === 0) {
-      setError('No items selected for checkout');
+      toast.error('No items selected for checkout');
       return;
     }
 
     setLoading(true);
-    setError('');
 
     try {
       const token = localStorage.getItem('token');
@@ -144,17 +144,19 @@ const Checkout = () => {
       if (response.ok) {
         // Clear cart after successful order
         clearCart();
-        navigate('/my-orders');
+        toast.success('Order placed successfully! Redirecting to your orders...');
+        setTimeout(() => navigate('/my-orders'), 1500);
       } else if (response.status === 401) {
         // Unauthorized - token invalid or expired, redirect to login
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        navigate('/login');
+        toast.error('Session expired. Please log in again.');
+        setTimeout(() => navigate('/login'), 1500);
       } else {
-        setError(result.message || 'Failed to place order');
+        toast.error(result.message || 'Failed to place order');
       }
     } catch (err) {
-      setError('An error occurred while placing your order');
+      toast.error('An error occurred while placing your order');
       console.error('Checkout error:', err);
     } finally {
       setLoading(false);

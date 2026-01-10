@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { toast } from 'react-toastify';
 
 // Import the background image
 import backgroundImage from '../assets/delivery box sealed with eco-friendly tape.png';
@@ -93,6 +94,7 @@ const Cart = () => {
 
   const handleCheckout = () => {
     setIsCheckingOut(true);
+    toast.info('Redirecting to checkout...');
     // Pass selected items to checkout page using state
     navigate('/checkout', { state: { selectedItems: getSelectedItems() } });
   };
@@ -226,14 +228,25 @@ const Cart = () => {
                       <div className="flex flex-col items-end space-y-4">
                         <div className="flex items-center border-2 border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden">
                           <button
-                            onClick={() => updateQuantity(item.plant._id, item.quantity - 1)}
+                            onClick={() => {
+                              if (item.quantity > 1) {
+                                updateQuantity(item.plant._id, item.quantity - 1);
+                                toast.success(`${item.plant.name} quantity decreased!`);
+                              } else {
+                                removeFromCart(item.plant._id);
+                                toast.success(`${item.plant.name} removed from cart!`);
+                              }
+                            }}
                             className="px-4 py-2 text-gray-600 hover:bg-gray-100 font-bold text-lg transition-colors duration-200"
                           >
                             -
                           </button>
                           <span className="px-4 py-2 text-gray-800 font-medium min-w-[40px] text-center">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.plant._id, item.quantity + 1)}
+                            onClick={() => {
+                              updateQuantity(item.plant._id, item.quantity + 1);
+                              toast.success(`${item.plant.name} quantity increased!`);
+                            }}
                             className="px-4 py-2 text-gray-600 hover:bg-gray-100 font-bold text-lg transition-colors duration-200"
                           >
                             +
@@ -241,7 +254,10 @@ const Cart = () => {
                         </div>
                         
                         <button
-                          onClick={() => removeFromCart(item.plant._id)}
+                          onClick={() => {
+                            removeFromCart(item.plant._id);
+                            toast.success(`${item.plant.name} removed from cart!`);
+                          }}
                           className="flex items-center text-red-600 hover:text-red-800 font-medium transition-colors duration-200"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

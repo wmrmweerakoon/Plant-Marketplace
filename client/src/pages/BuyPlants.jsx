@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import PlantCard from '../components/PlantCard';
+import { toast } from 'react-toastify';
 
 // Import the background image
 import backgroundImage from '../assets/modern, organized indoor plant nursery.png';
 
 const BuyPlants = () => {
+  const navigate = useNavigate();
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlant, setSelectedPlant] = useState(null);
@@ -130,7 +133,10 @@ const BuyPlants = () => {
             
             <div className="flex items-end pb-1">
               <button
-                onClick={() => setFilters({category: 'All', careLevel: 'All', search: ''})}
+                onClick={() => {
+                  setFilters({category: 'All', careLevel: 'All', search: ''});
+                  toast.info('Filters cleared!');
+                }}
                 className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition duration-200 shadow-md shadow-green-500/20 font-medium"
               >
                 Clear All
@@ -255,6 +261,7 @@ const BuyPlants = () => {
                     <div className="text-3xl font-bold text-green-700 mb-1">${selectedPlant.price.toFixed(2)}</div>
                     <p className="text-gray-600 text-sm mb-4">per unit</p>
                     <button
+                      onClick={() => navigate('/contact-seller', { state: { selectedPlant } })}
                       className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg hover:from-green-700 hover:to-emerald-700 transition duration-200 shadow-md text-base font-medium"
                     >
                       Contact Seller

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
+import { toast } from 'react-toastify';
 
 // Import the background image
 import backgroundImage from '../assets/aesthetic wide shot of a clean, bright home interior.png';
@@ -49,22 +50,23 @@ const Login = () => {
         // Initialize user's cart from backend
         initializeUserCart();
         
-        // Redirect based on user role
+        // Show success message and redirect based on user role
+        toast.success('Login successful! Redirecting...');
         const userRole = data.user.role;
         if (userRole === 'admin') {
-          navigate('/admin/dashboard');
+          setTimeout(() => navigate('/admin/dashboard'), 1500);
         } else if (userRole === 'seller') {
-          navigate('/seller-dashboard');
+          setTimeout(() => navigate('/seller-dashboard'), 1500);
         } else {
           // Default to home for buyers
-          navigate('/');
+          setTimeout(() => navigate('/'), 1500);
         }
       } else {
-        alert(data.message || 'Login failed. Please try again.');
+        toast.error(data.message || 'Login failed. Please try again.');
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Login failed. Please try again.');
+      toast.error('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

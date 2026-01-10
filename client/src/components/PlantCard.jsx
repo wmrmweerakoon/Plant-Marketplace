@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
+import { toast } from 'react-toastify';
 
 const PlantCard = ({ plant, onViewDetails }) => {
   const { addToCart, isInCart } = useCart();
@@ -9,6 +10,9 @@ const PlantCard = ({ plant, onViewDetails }) => {
     e.stopPropagation(); // Prevent triggering the view details action
     if (plant.stock > 0) {
       addToCart(plant, 1);
+      toast.success(`${plant.name} added to cart!`);
+    } else {
+      toast.error('Sorry, this plant is out of stock.');
     }
   };
 

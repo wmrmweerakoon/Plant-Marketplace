@@ -1,4 +1,4 @@
-/* Modern CSS with background animations and dark mode support */
+/* Modern CSS with background animations */
 
 @import "tailwindcss";
 
@@ -59,10 +59,6 @@
   opacity: 0.10;
 }
 
-.dark .animated-bg {
-  background: linear-gradient(-45deg, #064e3b, #065f46, #0f766e, #115e59);
-  opacity: 0.2;
-}
 
 /* Floating elements */
 .floating-element {
@@ -77,11 +73,6 @@
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-.dark .glass-effect {
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
 /* Color variables based on provided specifications */
 :root {
   --color-primary: #047857; /* Deep Forest Green */
@@ -93,18 +84,6 @@
   --text-secondary: #475569; /* Slightly lighter slate */
   --border-color: #e2e8f0; /* Light gray border */
   --color-error: #dc2626; /* Terra Cotta */
-}
-
-[data-theme="dark"] {
-  --color-primary: #34d399; /* Mint Accent */
-  --color-secondary: #047857; /* Deep Forest Green */
-  --color-accent: #34d399; /* Mint Accent */
-  --bg-primary: #1e2939; /* Darker background */
-  --bg-secondary: #334155; /* Secondary dark */
-  --text-primary: #f8fafc; /* Light text */
-  --text-secondary: #e2e8f0; /* Secondary light text */
-  --border-color: #64748b; /* Medium gray border */
-  --color-error: #fca5a5; /* Light red for dark mode */
 }
 
 /* Smooth transitions */
@@ -175,23 +154,6 @@
   }
 }
 
-/* Theme switcher */
-.theme-toggle {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  border-radius: 50%;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  transition: all 0.3s ease;
-}
-
-.theme-toggle:hover {
-  background: var(--color-primary);
-  color: white;
-}
 
 /* Image styling */
 .product-image {

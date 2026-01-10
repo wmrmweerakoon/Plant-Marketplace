@@ -135,16 +135,7 @@ const Navbar = ({ toggleTheme, darkMode }) => {
             )}
           </div>
           
-          {/* Theme toggle button */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full bg-white/20 text-gray-800 hover:bg-white/30 transition-colors duration-300"
-              aria-label="Toggle theme"
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
-            
+          <div className="flex items-center space-x-4">
             {/* Floating Cart Icon - only show for buyers */}
             {user && user.role === 'buyer' && (
               <div className="flex items-center relative ml-2">
@@ -282,16 +273,8 @@ const Navbar = ({ toggleTheme, darkMode }) => {
               </>
             )}
             
-            {/* Mobile theme toggle and cart */}
-            <div className="flex justify-between px-3 py-2">
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-full bg-white/20 text-gray-800 hover:bg-white/30 transition-colors duration-300"
-                aria-label="Toggle theme"
-              >
-                {darkMode ? '☀️' : '🌙'}
-              </button>
-              
+            {/* Mobile cart only */}
+            <div className="px-3 py-2 flex justify-end">
               {user && user.role === 'buyer' && (
                 <Link to="/cart" className="relative p-2 group">
                   <div className="text-gray-800 group-hover:text-green-700 transition-colors duration-300">

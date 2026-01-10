@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import sellerImage from '../assets/seller.png';
 
 const SellerDashboard = ({ setHideNavbar }) => {
@@ -181,11 +182,14 @@ const SellerDashboard = ({ setHideNavbar }) => {
           image: null,
           imageUrl: ''
         });
+        toast.success('Plant added successfully!');
       } else {
+        toast.error(data.message || 'Error creating plant');
         console.error('Error creating plant:', data.message);
       }
     } catch (error) {
       console.error('Error creating plant:', error);
+      toast.error('An error occurred while adding the plant');
     }
   };
 
@@ -258,11 +262,14 @@ const SellerDashboard = ({ setHideNavbar }) => {
           image: null,
           imageUrl: ''
         });
+        toast.success('Plant updated successfully!');
       } else {
+        toast.error(data.message || 'Error updating plant');
         console.error('Error updating plant:', data.message);
       }
     } catch (error) {
       console.error('Error updating plant:', error);
+      toast.error('An error occurred while updating the plant');
     }
   };
 
@@ -290,11 +297,14 @@ const SellerDashboard = ({ setHideNavbar }) => {
 
       if (response.ok) {
         setPlants(plants.filter(plant => plant._id !== plantId));
+        toast.success('Plant deleted successfully!');
       } else {
+        toast.error(data.message || 'Error deleting plant');
         console.error('Error deleting plant:', data.message);
       }
     } catch (error) {
       console.error('Error deleting plant:', error);
+      toast.error('An error occurred while deleting the plant');
     }
   };
 
@@ -322,11 +332,14 @@ const SellerDashboard = ({ setHideNavbar }) => {
         setOrders(orders.map(order => 
           order._id === orderId ? { ...order, orderStatus: newStatus } : order
         ));
+        toast.success(`Order status updated to ${newStatus} successfully!`);
       } else {
+        toast.error(data.message || 'Error updating order status');
         console.error('Error updating order status:', data.message);
       }
     } catch (error) {
       console.error('Error updating order status:', error);
+      toast.error('An error occurred while updating order status');
     }
   };
 
@@ -361,11 +374,14 @@ const SellerDashboard = ({ setHideNavbar }) => {
           status: '',
           notes: ''
         });
+        toast.success('Tracking information updated successfully!');
       } else {
+        toast.error(data.message || 'Error updating tracking information');
         console.error('Error updating tracking info:', data.message);
       }
     } catch (error) {
       console.error('Error updating tracking info:', error);
+      toast.error('An error occurred while updating tracking information');
     }
   };
 

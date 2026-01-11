@@ -279,10 +279,10 @@ const MyOrders = () => {
                         >
                           <div className="flex items-center">
                             <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-10 rounded-xl overflow-hidden mr-5 flex-shrink-0 border-2 border-white shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-300 flex items-center justify-center">
-                              {item.plant.imageUrl ? (
+                              {item.plant && item.plant.imageUrl ? (
                                 <img
                                   src={item.plant.imageUrl}
-                                  alt={item.plant.name}
+                                  alt={item.plant.name || 'Plant'}
                                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                 />
                               ) : (
@@ -294,7 +294,7 @@ const MyOrders = () => {
                               )}
                             </div>
                             <div>
-                              <h5 className="text-base font-semibold text-gray-900 group-hover:text-green-700 transition-colors">{item.plant.name}</h5>
+                              <h5 className="text-base font-semibold text-gray-900 group-hover:text-green-700 transition-colors">{item.plant ? item.plant.name : 'Plant Deleted'}</h5>
                               <div className="flex items-center mt-1 space-x-3 text-sm text-gray-600">
                                 <span className="flex items-center">
                                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

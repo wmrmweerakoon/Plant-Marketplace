@@ -21,12 +21,12 @@ const PlantCard = ({ plant, onViewDetails }) => {
       whileHover={{ y: -10, scale: 1.02 }}
       className="bg-white rounded-2xl shadow-lg overflow-hidden border border-green-100 glass-effect backdrop-blur-sm h-full flex flex-col"
     >
-      <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 relative overflow-hidden">
+      <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-10 relative overflow-hidden flex items-center justify-center p-2">
         {plant.imageUrl ? (
           <img
             src={plant.imageUrl}
             alt={plant.name}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            className="max-h-full max-w-full object-contain transition-transform duration-30 hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50">

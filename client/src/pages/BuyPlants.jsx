@@ -204,18 +204,18 @@ const BuyPlants = () => {
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="md:w-2/5">
                   {selectedPlant.imageUrl ? (
-                    <div className="overflow-hidden rounded-xl shadow-md mb-6">
+                    <div className="overflow-hidden rounded-xl shadow-md mb-6 flex items-center justify-center h-60 p-2">
                       <img
                         src={selectedPlant.imageUrl}
                         alt={selectedPlant.name}
-                        className="w-full h-60 object-cover transition-transform duration-300 hover:scale-105"
+                        className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
                       />
                     </div>
                   ) : (
                     <div className="w-full h-60 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl flex items-center justify-center shadow-inner mb-6 border-2 border-dashed border-gray-200">
                       <div className="text-center p-4">
                         <div className="text-4xl mb-2 text-green-400">🌿</div>
-                        <span className="text-gray-500 text-sm">No image available</span>
+                        <span className="text-gray-50 text-sm">No image available</span>
                       </div>
                     </div>
                   )}

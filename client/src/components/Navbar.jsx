@@ -68,6 +68,17 @@ const Navbar = ({ toggleTheme, darkMode }) => {
                 )}
               </Link>
             ) : null}
+            {user && user.role === 'buyer' && (
+              <Link to="/plant-care-assistant" className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-white/20 hover:text-green-70 hover:shadow-md hover:scale-105 relative group">
+                <span className={`${location.pathname === '/plant-care-assistant' ? 'text-green-700 font-bold' : 'text-gray-800'}`}>Plant Care</span>
+                {location.pathname === '/plant-care-assistant' && (
+                  <motion.div
+                    layoutId="navbarIndicator"
+                    className="absolute bottom-0 left-0 w-full h-0.5 bg-green-600 rounded-full"
+                  />
+                )}
+              </Link>
+            )}
             
             {user ? (
               <>
@@ -214,6 +225,15 @@ const Navbar = ({ toggleTheme, darkMode }) => {
                 Buy Plants
               </Link>
             ) : null}
+            {user && user.role === 'buyer' && (
+              <Link
+                to="/plant-care-assistant"
+                className={`block px-3 py-3 rounded-lg text-base font-medium transition-all duration-300 hover:bg-white/20 hover:text-green-70 hover:scale-[1.02] ${location.pathname === '/plant-care-assistant' ? 'text-green-700 font-bold' : 'text-gray-800'}`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Plant Care
+              </Link>
+            )}
             
             {user ? (
               <>

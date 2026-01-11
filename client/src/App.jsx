@@ -14,6 +14,7 @@ import BuyPlants from './pages/BuyPlants';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import MyOrders from './pages/MyOrders';
+import PlantCareAssistant from './pages/PlantCareAssistant';
 
 function AppContent() {
   const [darkMode, setDarkMode] = useState(false);
@@ -67,6 +68,7 @@ function AppContent() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/my-orders" element={<MyOrders />} />
+            <Route path="/plant-care-assistant" element={<PlantCareAssistant />} />
           </Routes>
         </main>
         <Footer />

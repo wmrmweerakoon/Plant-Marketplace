@@ -165,9 +165,9 @@ const Checkout = () => {
 
   if (selectedItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 relative overflow-hidden"
-           style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-        <div className="absolute inset-0 bg-gradient-to-b from-white/80 to-emerald-100/60 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 pt-24 pb-12 relative overflow-hidden"
+           style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundAttachment: 'fixed' }}>
+        <div className="absolute inset-0 bg-gradient-to-b from-white/70 to-emerald-100/50 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -182,16 +182,16 @@ const Checkout = () => {
             <motion.h1
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent mb-3"
+              className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-800 to-emerald-800 bg-clip-text text-transparent mb-3 drop-shadow-lg"
             >
               Checkout
             </motion.h1>
-            <p className="text-gray-600 text-lg mb-8">No items selected for checkout. Please go back to cart and select items.</p>
+            <p className="text-gray-700 text-lg mb-8 font-medium">No items selected for checkout. Please go back to cart and select items.</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/cart')}
-              className="inline-block bg-gradient-to-r from-green-600 to-emerald-60 text-white px-10 py-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg shadow-green-50/30 font-medium text-lg hover:scale-105 transform"
+              className="inline-block bg-gradient-to-r from-green-600 to-emerald-60 text-white px-10 py-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg shadow-green-500/30 font-medium text-lg hover:scale-105 transform"
             >
               Go to Cart
             </motion.button>
@@ -202,19 +202,19 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 relative overflow-hidden"
-         style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-      <div className="absolute inset-0 bg-gradient-to-b from-white/80 to-emerald-10/60 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 pt-24 pb-12 relative overflow-hidden"
+         style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundAttachment: 'fixed' }}>
+      <div className="absolute inset-0 bg-gradient-to-b from-white/70 to-emerald-10/50 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent mb-3">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-800 to-emerald-800 bg-clip-text text-transparent mb-3 drop-shadow-lg">
             Complete Your Purchase
           </h1>
-          <p className="text-gray-60 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-700 text-lg max-w-2xl mx-auto font-medium">
             Fill in your shipping details and select a payment method to complete your order
           </p>
         </motion.div>

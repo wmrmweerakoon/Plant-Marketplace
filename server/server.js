@@ -56,6 +56,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const plantCareRoutes = require('./routes/plantCareRoutes');
 
 /**
  * ROUTES
@@ -82,6 +83,9 @@ app.use('/api/admin', adminRoutes);
 
 // 7. Payment Routes
 app.use('/api/payment', paymentRoutes);
+
+// 8. Plant Care Routes
+app.use('/api/plant-care', plantCareRoutes);
 
 // Serve static assets if in production
 if (process.env.NODE_ENV === 'production') {

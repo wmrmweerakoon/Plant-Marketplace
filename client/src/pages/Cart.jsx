@@ -147,25 +147,26 @@ const Cart = () => {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 relative overflow-hidden"
+      className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 pt-24 pb-12 relative overflow-hidden"
       style={{ 
         backgroundImage: `url(${backgroundImage})`, 
         backgroundSize: 'cover', 
         backgroundPosition: 'center', 
-        backgroundRepeat: 'no-repeat' 
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-white/80 to-emerald-100/60 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/70 to-emerald-100/50 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent mb-3">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-800 to-emerald-800 bg-clip-text text-transparent mb-3 drop-shadow-lg">
             Your Shopping Cart
           </h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-700 text-lg max-w-2xl mx-auto font-medium drop-shadow-md">
             Review your selected plants and proceed to checkout
           </p>
         </motion.div>

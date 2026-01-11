@@ -6,11 +6,19 @@ import { toast } from 'react-toastify';
 const PlantCard = ({ plant, onViewDetails }) => {
   const { addToCart, isInCart } = useCart();
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.stopPropagation(); // Prevent triggering the view details action
     if (plant.stock > 0) {
-      addToCart(plant, 1);
-      toast.success(`${plant.name} added to cart!`);
+      try {
+        // Call addToCart and await the result
+        // If addToCart throws an error (like for sellers), it will be caught here
+        await addToCart(plant, 1);
+        // Only show success toast if the operation completed without throwing an error
+        toast.success(`${plant.name} added to cart!`);
+      } catch (error) {
+        // Error handling is already done in the addToCart function (alerts are shown there)
+        // We don't show a success toast if there was an error
+      }
     } else {
       toast.error('Sorry, this plant is out of stock.');
     }

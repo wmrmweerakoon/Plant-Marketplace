@@ -135,7 +135,30 @@ export const CartProvider = ({ children }) => {
     if (!token) {
       // If not logged in, redirect to login page
       window.location.href = '/login';
-      return;
+      throw new Error('User not logged in');
+    }
+
+    // Get user info to check if user is a seller
+    try {
+      const userResponse = await fetch('/api/auth/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        if (userData.user && userData.user.role === 'seller') {
+          alert('Sellers cannot add items to the cart.');
+          throw new Error('Sellers cannot add items to the cart.');
+        }
+      } else {
+        console.error('Failed to get user info:', userResponse.status);
+      }
+    } catch (error) {
+      console.error('Error checking user role:', error);
+      throw error;
     }
 
     // Update local state immediately for better UX
@@ -155,6 +178,7 @@ export const CartProvider = ({ children }) => {
         }
         // Show error message to user
         alert(response.message || 'Failed to add item to cart');
+        throw new Error(response.message || 'Failed to add item to cart');
       }
     } catch (error) {
       console.error('Error adding item to cart:', error);
@@ -165,6 +189,7 @@ export const CartProvider = ({ children }) => {
       }
       // Show error message to user
       alert(error.message || 'An error occurred while adding the item to cart');
+      throw error;
     }
   };
 

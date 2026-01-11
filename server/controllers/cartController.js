@@ -30,6 +30,11 @@ const addItemToCart = async (req, res) => {
   try {
     const { plantId, quantity = 1 } = req.body;
 
+    // Check if user is a seller
+    if (req.user.role === 'seller') {
+      return res.status(403).json({ success: false, message: 'Sellers cannot add items to the cart.' });
+    }
+
     // Validate plant exists and get price
     const plant = await Plant.findById(plantId);
     if (!plant) {

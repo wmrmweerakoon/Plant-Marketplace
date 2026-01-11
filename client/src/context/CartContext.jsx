@@ -145,7 +145,27 @@ export const CartProvider = ({ children }) => {
     });
 
     // Sync with backend
-    await syncCartWithBackend('ADD', { plantId: plant._id, quantity });
+    try {
+      const response = await cartApi.addToCart(plant._id, quantity);
+      if (!response.success) {
+        // If the backend returned an error, revert the optimistic update
+        const cartResponse = await cartApi.getCart();
+        if (cartResponse.success && cartResponse.data) {
+          dispatch({ type: 'SET_CART_ITEMS', payload: cartResponse.data.items || [] });
+        }
+        // Show error message to user
+        alert(response.message || 'Failed to add item to cart');
+      }
+    } catch (error) {
+      console.error('Error adding item to cart:', error);
+      // Revert the optimistic update by refreshing the cart
+      const cartResponse = await cartApi.getCart();
+      if (cartResponse.success && cartResponse.data) {
+        dispatch({ type: 'SET_CART_ITEMS', payload: cartResponse.data.items || [] });
+      }
+      // Show error message to user
+      alert(error.message || 'An error occurred while adding the item to cart');
+    }
   };
 
   const removeFromCart = async (plantId) => {
@@ -200,9 +220,26 @@ export const CartProvider = ({ children }) => {
         if (response.success && response.data) {
           // Update local state with the cart data from the backend after update
           dispatch({ type: 'SET_CART_ITEMS', payload: response.data.items || [] });
+        } else {
+          // If the backend rejected the update (e.g., due to insufficient stock),
+          // revert the optimistic update by refreshing the cart
+          console.error('Failed to update quantity:', response.message);
+          const cartResponse = await cartApi.getCart();
+          if (cartResponse.success && cartResponse.data) {
+            dispatch({ type: 'SET_CART_ITEMS', payload: cartResponse.data.items || [] });
+          }
+          // Optionally show an error message to the user
+          alert(response.message || 'Failed to update quantity');
         }
       } catch (error) {
         console.error('Error updating item quantity in cart:', error);
+        // Revert the optimistic update by refreshing the cart
+        const cartResponse = await cartApi.getCart();
+        if (cartResponse.success && cartResponse.data) {
+          dispatch({ type: 'SET_CART_ITEMS', payload: cartResponse.data.items || [] });
+        }
+        // Show error message to user
+        alert(error.message || 'An error occurred while updating the quantity');
       }
     }
   };

@@ -259,6 +259,11 @@ const Cart = () => {
                           <span className="px-4 py-2 text-gray-800 font-medium min-w-[40px] text-center">{item.quantity}</span>
                           <button
                             onClick={() => {
+                              // Check if increasing quantity would exceed available stock
+                              if (item.quantity >= item.plant.stock) {
+                                toast.error(`Only ${item.plant.stock} items available in stock`);
+                                return;
+                              }
                               updateQuantity(item.plant._id, item.quantity + 1);
                               toast.success(`${item.plant.name} quantity increased!`);
                             }}

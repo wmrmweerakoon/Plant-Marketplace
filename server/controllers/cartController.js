@@ -79,11 +79,11 @@ const addItemToCart = async (req, res) => {
 };
 
 // @desc    Update cart item quantity
-// @route   PUT /api/cart/update/:itemId
+// @route   PUT /api/cart/update/:plantId
 // @access  Private
 const updateCartItem = async (req, res) => {
   try {
-    const { itemId } = req.params;
+    const { plantId } = req.params;
     const { quantity } = req.body;
 
     const cart = await Cart.findOne({ user: req.user._id }).populate('items.plant');
@@ -91,16 +91,23 @@ const updateCartItem = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Cart not found' });
     }
 
-    const item = cart.items.find(item => item.plant._id.toString() === itemId);
-    if (!item) {
+    // Find the item by plantId, with null safety check
+    const itemIndex = cart.items.findIndex(item => item.plant && item.plant._id && item.plant._id.toString() === plantId);
+    
+    if (itemIndex === -1) {
       return res.status(404).json({ success: false, message: 'Item not found in cart' });
     }
 
+    const item = cart.items[itemIndex];
+
     if (quantity <= 0) {
       // Remove item if quantity is 0 or less
-      cart.items = cart.items.filter(item => item.plant._id.toString() !== itemId);
+      cart.items.splice(itemIndex, 1);
     } else {
       // Check stock availability
+      if (!item.plant) {
+        return res.status(404).json({ success: false, message: 'Associated plant not found' });
+      }
       if (quantity > item.plant.stock) {
         return res.status(400).json({ success: false, message: `Only ${item.plant.stock} items available in stock` });
       }
@@ -120,20 +127,31 @@ const updateCartItem = async (req, res) => {
 };
 
 // @desc    Remove item from cart
-// @route   DELETE /api/cart/remove/:itemId
+// @route   DELETE /api/cart/remove/:plantId
 // @access  Private
 const removeCartItem = async (req, res) => {
   try {
-    const { itemId } = req.params;
+    const { plantId } = req.params;
 
     const cart = await Cart.findOne({ user: req.user._id });
     if (!cart) {
       return res.status(404).json({ success: false, message: 'Cart not found' });
     }
 
-    // Filter out the item to remove
-    cart.items = cart.items.filter(item => item.plant.toString() !== itemId);
+    // Filter out the item to remove - handle both populated and unpopulated cart items
+    cart.items = cart.items.filter(item => {
+      // Handle both cases: when item.plant is an ObjectId and when it's populated
+      if (typeof item.plant === 'string') {
+        return item.plant !== plantId;
+      } else if (item.plant && typeof item.plant._id !== 'undefined') {
+        return item.plant._id.toString() !== plantId;
+      } else {
+        return item.plant.toString() !== plantId;
+      }
+    });
+    
     await cart.save();
+    await cart.populate('items.plant'); // Repopulate after save to ensure consistency
 
     res.status(200).json({
       success: true,

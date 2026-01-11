@@ -40,6 +40,26 @@ const apiRequest = async (endpoint, options = {}) => {
   }
 };
 
+// Cart-specific API functions
+export const cartApi = {
+  getCart: () => apiRequest('/cart'),
+  addToCart: (plantId, quantity = 1) => apiRequest('/cart/add', {
+    method: 'POST',
+    body: JSON.stringify({ plantId, quantity })
+  }),
+  updateCartItem: (plantId, quantity) => apiRequest(`/cart/update/${plantId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ quantity })
+  }),
+  removeCartItem: (plantId) => apiRequest(`/cart/remove/${plantId}`, {
+    method: 'DELETE'
+  }),
+  clearCart: () => apiRequest('/cart/clear', {
+    method: 'DELETE'
+  }),
+  getCartTotal: () => apiRequest('/cart/total')
+};
+
 // Admin Dashboard API functions
 export const adminApi = {
   getDashboardStats: () => apiRequest('/admin/dashboard'),

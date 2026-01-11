@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { cartApi } from '../services/api';
 
 const CartContext = createContext();
 
@@ -8,26 +9,28 @@ const cartReducer = (state, action) => {
     case 'SET_CART_ITEMS':
       return {
         ...state,
-        items: action.payload
+        items: Array.isArray(action.payload) ? [...action.payload] : []
       };
     
     case 'ADD_TO_CART':
-      const items = state.items || [];
-      // Add null check for action.payload.plant
+      const items = Array.isArray(state.items) ? [...state.items] : [];
       if (!action.payload.plant || !action.payload.plant._id) {
         console.warn('Cannot add item to cart: Invalid plant data', action.payload);
         return state;
       }
-      const existingItem = items.find(item => item.plant && item.plant._id === action.payload.plant._id);
+      const existingItemIndex = items.findIndex(item => 
+        item.plant && item.plant._id === action.payload.plant._id
+      );
       
-      if (existingItem) {
+      if (existingItemIndex >= 0) {
+        const updatedItems = [...items];
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          quantity: updatedItems[existingItemIndex].quantity + action.payload.quantity
+        };
         return {
           ...state,
-          items: items.map(item =>
-            item.plant && item.plant._id === action.payload.plant._id
-              ? { ...item, quantity: item.quantity + action.payload.quantity }
-              : item
-          )
+          items: updatedItems
         };
       } else {
         return {
@@ -39,13 +42,18 @@ const cartReducer = (state, action) => {
     case 'REMOVE_FROM_CART':
       return {
         ...state,
-        items: (state.items || []).filter(item => item.plant && item.plant._id !== action.payload)
+        items: Array.isArray(state.items) ? state.items.filter(item => 
+          item.plant && item.plant._id !== action.payload
+        ) : []
       };
 
     case 'UPDATE_QUANTITY':
+      if (!Array.isArray(state.items)) {
+        return state;
+      }
       return {
         ...state,
-        items: (state.items || []).map(item =>
+        items: state.items.map(item =>
           item.plant && item.plant._id === action.payload.plantId
             ? { ...item, quantity: action.payload.quantity }
             : item
@@ -66,305 +74,116 @@ const cartReducer = (state, action) => {
 // Cart Provider Component
 export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [] });
-  const isInitialLoadRef = useRef(true);
 
-  // Load cart from sessionStorage on initial render if no user is logged in, or load from backend if user is logged in
+  // Load cart from backend on initial render when user is logged in
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // User is logged in, load their cart from backend
-      loadUserCartFromBackend();
-    } else {
-      // No user logged in, load cart from sessionStorage
-      const savedCart = sessionStorage.getItem('cart');
-      if (savedCart) {
+    const loadCart = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
         try {
-          const parsedCart = JSON.parse(savedCart);
-          dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
+          const response = await cartApi.getCart();
+          if (response.success && response.data) {
+            dispatch({ type: 'SET_CART_ITEMS', payload: response.data.items || [] });
+          }
         } catch (error) {
-          console.error('Error parsing cart from sessionStorage:', error);
+          console.error('Error loading cart from backend:', error);
         }
       }
-    }
+    };
+    
+    loadCart();
   }, []);
 
-  // Save cart to sessionStorage when no user is logged in, or sync with backend when user is logged in
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Only sync with backend if not the initial load (to prevent sync immediately after loading from backend)
-      if (!isInitialLoadRef.current) {
-        syncCartWithBackend();
-      } else {
-        // Reset the flag after the initial load
-        isInitialLoadRef.current = false;
-      }
-    } else {
-      // No user logged in, save to sessionStorage
-      sessionStorage.setItem('cart', JSON.stringify(state.items));
-    }
-  }, [state.items]);
-
-  // Function to sync cart with backend when user is logged in
-  const syncCartWithBackend = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return; // Don't sync if user is not logged in
-
-    try {
-      // Get the current cart from the backend to compare with local state
-      const response = await fetch('/api/cart', {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      let backendCart = [];
-      if (response.ok) {
-        const data = await response.json();
-        backendCart = data.data.items || [];
-      }
-
-      // Find items that exist in local state but not in backend (need to be added/updated)
-      const localItems = state.items || [];
-      if (backendCart && Array.isArray(backendCart)) {
-        for (const localItem of localItems) {
-          // Add null check for localItem.plant
-          if (!localItem.plant || !localItem.plant._id) {
-            console.warn('Local cart item has invalid plant data:', localItem);
-            continue;
-          }
-          
-          const backendItem = backendCart.find(item => item.plant && item.plant._id === localItem.plant._id);
-          if (!backendItem) {
-            // Item doesn't exist in backend, add it
-            await fetch('/api/cart/add', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                plantId: localItem.plant._id,
-                quantity: localItem.quantity
-              })
-            });
-          } else if (backendItem.quantity !== localItem.quantity) {
-            // Item exists but quantity differs, update it
-            await fetch(`/api/cart/update/${localItem.plant._id}`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                quantity: localItem.quantity
-              })
-            });
-          }
-        }
-
-        // Find items that exist in backend but not in local state (need to be removed)
-        for (const backendItem of backendCart) {
-          // Add null check for backendItem.plant
-          if (!backendItem.plant || !backendItem.plant._id) {
-            console.warn('Backend cart item has invalid plant data:', backendItem);
-            continue;
-          }
-          
-          const localItem = localItems.find(item => item.plant && item.plant._id === backendItem.plant._id);
-          if (!localItem) {
-            // Item exists in backend but not in local state, remove it
-            await fetch(`/api/cart/remove/${backendItem.plant._id}`, {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
-            });
-          }
-        }
-      } else {
-        // If backendCart is not properly defined, we might need to send all local items to backend
-        for (const localItem of localItems) {
-          // Add null check for localItem.plant
-          if (!localItem.plant || !localItem.plant._id) {
-            console.warn('Local cart item has invalid plant data:', localItem);
-            continue;
-          }
-          
-          await fetch('/api/cart/add', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              plantId: localItem.plant._id,
-              quantity: localItem.quantity
-            })
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error syncing cart with backend:', error);
-    }
-  };
-
-
-  // Function to load user's cart from backend when they log in
-  const loadUserCartFromBackend = async () => {
+  // Function to sync cart with backend
+  const syncCartWithBackend = async (action, payload) => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
     try {
-      const response = await fetch('/api/cart', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      let response;
+      
+      switch (action) {
+        case 'ADD':
+          response = await cartApi.addToCart(payload.plantId, payload.quantity);
+          break;
+        case 'REMOVE':
+          response = await cartApi.removeCartItem(payload.plantId);
+          break;
+        case 'UPDATE':
+          response = await cartApi.updateCartItem(payload.plantId, payload.quantity);
+          break;
+        case 'CLEAR':
+          response = await cartApi.clearCart();
+          break;
+        default:
+          break;
+      }
 
-      if (response.ok) {
-        const data = await response.json();
-        // Ensure data.data.items exists and is an array before dispatching
-        if (data && data.data && Array.isArray(data.data.items)) {
-          dispatch({ type: 'SET_CART_ITEMS', payload: data.data.items });
-        } else {
-          console.warn('Invalid cart data received from backend:', data);
-          // Fallback to sessionStorage if backend data is invalid
-          const savedCart = sessionStorage.getItem('cart');
-          if (savedCart) {
-            try {
-              const parsedCart = JSON.parse(savedCart);
-              dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
-            } catch (parseError) {
-              console.error('Error parsing fallback cart from sessionStorage:', parseError);
-            }
-          } else {
-            // Initialize with empty cart if no fallback available
-            dispatch({ type: 'SET_CART_ITEMS', payload: [] });
-          }
-        }
-      } else {
-        console.error('Failed to load cart from backend:', response.status, response.statusText);
-        // If loading from backend fails, try to load from sessionStorage as fallback
-        const savedCart = sessionStorage.getItem('cart');
-        if (savedCart) {
-          try {
-            const parsedCart = JSON.parse(savedCart);
-            dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
-          } catch (parseError) {
-            console.error('Error parsing fallback cart from sessionStorage:', parseError);
-          }
-        }
+      if (response.success && response.data) {
+        dispatch({ type: 'SET_CART_ITEMS', payload: response.data.items || [] });
       }
     } catch (error) {
-      console.error('Error loading user cart from backend:', error);
-      // If loading from backend fails, try to load from sessionStorage as fallback
-      const savedCart = sessionStorage.getItem('cart');
-      if (savedCart) {
-        try {
-          const parsedCart = JSON.parse(savedCart);
-          dispatch({ type: 'SET_CART_ITEMS', payload: parsedCart });
-        } catch (parseError) {
-          console.error('Error parsing fallback cart from sessionStorage:', parseError);
-        }
-      }
+      console.error(`Error syncing cart with backend (${action}):`, error);
+      // If backend sync fails, we'll still have the item in local state
+      // and it will be synced later when possible
     }
-  };
-
-  // Expose the function to load user's cart from backend
-  const initializeUserCart = () => {
-    loadUserCartFromBackend();
   };
 
   const addToCart = async (plant, quantity = 1) => {
     // Check if user is logged in
     const token = localStorage.getItem('token');
     if (!token) {
-      // If not logged in, redirect to register page
-      window.location.href = '/register';
+      // If not logged in, redirect to login page
+      window.location.href = '/login';
       return;
     }
 
-    // Update local state immediately
+    // Update local state immediately for better UX
     dispatch({
       type: 'ADD_TO_CART',
       payload: { plant, quantity }
     });
 
-    // Immediately sync with backend
-    try {
-      const response = await fetch('/api/cart/add', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          plantId: plant._id,
-          quantity: quantity
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text(); // Use text() first to avoid JSON parsing errors
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch (e) {
-          console.error('Error parsing error response:', e);
-          errorData = { message: errorText || 'Unknown error occurred' };
-        }
-        console.error('Error adding item to cart:', errorData.message);
-        // If backend sync fails, we'll still have the item in local state
-        // and it will be synced later when possible
-      }
-    } catch (error) {
-      console.error('Error adding item to cart:', error);
-      // If backend sync fails, we'll still have the item in local state
-      // and it will be synced later when possible
-    }
+    // Sync with backend
+    await syncCartWithBackend('ADD', { plantId: plant._id, quantity });
   };
 
   const removeFromCart = async (plantId) => {
-    dispatch({
-      type: 'REMOVE_FROM_CART',
-      payload: plantId
-    });
-
-    // Immediately sync with backend
+    // Sync with backend first to ensure the removal is processed on the server
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await fetch(`/api/cart/remove/${plantId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text(); // Use text() first to avoid JSON parsing errors
-          let errorData;
-          try {
-            errorData = JSON.parse(errorText);
-          } catch (e) {
-            console.error('Error parsing error response:', e);
-            errorData = { message: errorText || 'Unknown error occurred' };
-          }
-          console.error('Error removing item from cart:', errorData.message);
+        const response = await cartApi.removeCartItem(plantId);
+        if (response.success && response.data) {
+          // Update local state with the cart data from the backend after removal
+          dispatch({ type: 'SET_CART_ITEMS', payload: response.data.items || [] });
+        } else {
+          // If backend removal failed, try to remove from local state anyway
+          dispatch({
+            type: 'REMOVE_FROM_CART',
+            payload: plantId
+          });
         }
       } catch (error) {
         console.error('Error removing item from cart:', error);
+        // If backend sync fails, still remove from local state
+        dispatch({
+          type: 'REMOVE_FROM_CART',
+          payload: plantId
+        });
       }
+    } else {
+      // If not logged in, just update local state
+      dispatch({
+        type: 'REMOVE_FROM_CART',
+        payload: plantId
+      });
     }
   };
 
   const updateQuantity = async (plantId, quantity) => {
     if (quantity <= 0) {
-      removeFromCart(plantId);
+      await removeFromCart(plantId);
       return;
     }
     
@@ -373,31 +192,14 @@ export const CartProvider = ({ children }) => {
       payload: { plantId, quantity }
     });
 
-    // Immediately sync with backend
+    // Sync with backend
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await fetch(`/api/cart/update/${plantId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            quantity: quantity
-          })
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text(); // Use text() first to avoid JSON parsing errors
-          let errorData;
-          try {
-            errorData = JSON.parse(errorText);
-          } catch (e) {
-            console.error('Error parsing error response:', e);
-            errorData = { message: errorText || 'Unknown error occurred' };
-          }
-          console.error('Error updating item quantity in cart:', errorData.message);
+        const response = await cartApi.updateCartItem(plantId, quantity);
+        if (response.success && response.data) {
+          // Update local state with the cart data from the backend after update
+          dispatch({ type: 'SET_CART_ITEMS', payload: response.data.items || [] });
         }
       } catch (error) {
         console.error('Error updating item quantity in cart:', error);
@@ -408,33 +210,8 @@ export const CartProvider = ({ children }) => {
   const clearCart = async () => {
     dispatch({ type: 'CLEAR_CART' });
 
-    // Immediately sync with backend
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const response = await fetch('/api/cart/clear', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text(); // Use text() first to avoid JSON parsing errors
-          let errorData;
-          try {
-            errorData = JSON.parse(errorText);
-          } catch (e) {
-            console.error('Error parsing error response:', e);
-            errorData = { message: errorText || 'Unknown error occurred' };
-          }
-          console.error('Error clearing cart:', errorData.message);
-        }
-      } catch (error) {
-        console.error('Error clearing cart:', error);
-      }
-    }
+    // Sync with backend
+    await syncCartWithBackend('CLEAR', {});
   };
 
   const getTotalItems = () => {
@@ -442,15 +219,47 @@ export const CartProvider = ({ children }) => {
   };
 
   const getTotalPrice = () => {
-    return state.items?.reduce((total, item) => total + (item.plant?.price * item.quantity || 0), 0) || 0;
+    return state.items?.reduce((total, item) => 
+      total + (item.plant?.price * item.quantity || 0), 0
+    ) || 0;
   };
 
   const isInCart = (plantId) => {
-    return state.items?.some(item => item.plant && item.plant._id === plantId) || false;
+    return state.items?.some(item => 
+      item.plant && item.plant._id === plantId
+    ) || false;
  };
 
   const getCartItems = () => {
     return state.items || [];
+ };
+
+  const refreshCart = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const response = await cartApi.getCart();
+      if (response.success && response.data) {
+        dispatch({ type: 'SET_CART_ITEMS', payload: response.data.items || [] });
+      }
+    } catch (error) {
+      console.error('Error refreshing cart from backend:', error);
+    }
+  };
+
+  const initializeUserCart = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const response = await cartApi.getCart();
+      if (response.success && response.data) {
+        dispatch({ type: 'SET_CART_ITEMS', payload: response.data.items || [] });
+      }
+    } catch (error) {
+      console.error('Error initializing user cart:', error);
+    }
   };
 
   return (
@@ -464,6 +273,7 @@ export const CartProvider = ({ children }) => {
       getTotalPrice,
       isInCart,
       getCartItems,
+      refreshCart,
       initializeUserCart
     }}>
       {children}

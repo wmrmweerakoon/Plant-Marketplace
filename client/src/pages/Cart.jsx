@@ -8,7 +8,14 @@ import { toast } from 'react-toastify';
 import backgroundImage from '../assets/delivery box sealed with eco-friendly tape.png';
 
 const Cart = () => {
-  const { cart, updateQuantity, removeFromCart, getTotalPrice } = useCart();
+  const { 
+    cart, 
+    updateQuantity, 
+    removeFromCart, 
+    getTotalPrice, 
+    getTotalItems,
+    getCartItems 
+  } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [selectedItems, setSelectedItems] = useState({});
   const [user, setUser] = useState(null);
@@ -46,16 +53,28 @@ const Cart = () => {
     }
   }, [navigate]);
 
+  // Redirect to buy plants if cart is empty
+  useEffect(() => {
+    if (getCartItems().length === 0) {
+      // Add a small delay to allow the component to render first
+      const timer = setTimeout(() => {
+        navigate('/buy-plants');
+      }, 1000); // 1 second delay to show the empty cart briefly before redirecting
+
+      return () => clearTimeout(timer);
+    }
+  }, [getCartItems(), navigate]);
+
   // Initialize selectedItems when cart items change
   React.useEffect(() => {
     const initialSelections = {};
-    (cart.items || []).forEach(item => {
+    (getCartItems() || []).forEach(item => {
       if (item.plant && item.plant._id) {
         initialSelections[item.plant._id] = true; // By default, select all items
       }
     });
     setSelectedItems(initialSelections);
-  }, [cart.items]);
+  }, [getCartItems()]);
 
   const toggleSelectItem = (plantId) => {
     setSelectedItems(prev => ({
@@ -66,7 +85,7 @@ const Cart = () => {
 
   const selectAllItems = () => {
     const newSelections = {};
-    (cart.items || []).forEach(item => {
+    (getCartItems() || []).forEach(item => {
       if (item.plant && item.plant._id) {
         newSelections[item.plant._id] = true;
       }
@@ -76,7 +95,7 @@ const Cart = () => {
 
   const deselectAllItems = () => {
     const newSelections = {};
-    (cart.items || []).forEach(item => {
+    (getCartItems() || []).forEach(item => {
       if (item.plant && item.plant._id) {
         newSelections[item.plant._id] = false;
       }
@@ -85,61 +104,57 @@ const Cart = () => {
   };
 
   const getSelectedItems = () => {
-    return (cart.items || []).filter(item => item.plant && selectedItems[item.plant._id]);
+    return (getCartItems() || []).filter(item => item.plant && selectedItems[item.plant._id]);
   };
 
   const getSelectedTotalPrice = () => {
     return getSelectedItems().reduce((total, item) => total + (item.plant?.price * item.quantity || 0), 0);
   };
 
+  const getSelectedTotalItems = () => {
+    return getSelectedItems().reduce((total, item) => total + item.quantity, 0);
+  };
+
   const handleCheckout = () => {
+    const selectedItems = getSelectedItems();
+    if (selectedItems.length === 0) {
+      toast.error('Please select at least one item to checkout');
+      return;
+    }
+    
     setIsCheckingOut(true);
     toast.info('Redirecting to checkout...');
     // Pass selected items to checkout page using state
-    navigate('/checkout', { state: { selectedItems: getSelectedItems() } });
+    navigate('/checkout', { state: { selectedItems: selectedItems } });
   };
 
-  if ((cart.items || []).length === 0) {
+  // Show loading state briefly while redirecting
+  if (getCartItems().length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 relative overflow-hidden"
-           style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-        <div className="absolute inset-0 bg-gradient-to-b from-white/80 to-emerald-100/60 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
-          >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 mb-6 border-2 border-green-200 shadow-md">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <motion.h1
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent mb-3"
-            >
-              Your Cart
-            </motion.h1>
-            <p className="text-gray-600 text-lg mb-8">Your cart is currently empty</p>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/buy-plants')}
-              className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 text-white px-10 py-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg shadow-green-500/30 font-medium text-lg hover:scale-105 transform"
-            >
-              Browse Plants
-            </motion.button>
-          </motion.div>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 mb-4 border-2 border-green-200">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 00-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Your Cart is Empty</h2>
+          <p className="text-gray-600">Redirecting to plant store...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 relative overflow-hidden"
-         style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <div 
+      className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 relative overflow-hidden"
+      style={{ 
+        backgroundImage: `url(${backgroundImage})`, 
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center', 
+        backgroundRepeat: 'no-repeat' 
+      }}
+    >
       <div className="absolute inset-0 bg-gradient-to-b from-white/80 to-emerald-100/60 z-0"></div> {/* Semi-transparent overlay to blend image with content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
@@ -163,24 +178,24 @@ const Cart = () => {
                   <div className="flex items-center space-x-3">
                     <input
                       type="checkbox"
-                      checked={(cart.items || []).length > 0 && (cart.items || []).every(item => item.plant && selectedItems[item.plant._id])}
+                      checked={getCartItems().length > 0 && getCartItems().every(item => item.plant && selectedItems[item.plant._id])}
                       onChange={() => {
-                        if ((cart.items || []).length > 0 && (cart.items || []).every(item => item.plant && selectedItems[item.plant._id])) {
+                        if (getCartItems().length > 0 && getCartItems().every(item => item.plant && selectedItems[item.plant._id])) {
                           deselectAllItems();
                         } else {
                           selectAllItems();
                         }
                       }}
-                      className="h-5 w-5 text-green-600 rounded focus:ring-green-500 border-gray-30"
+                      className="h-5 w-5 text-green-600 rounded focus:ring-green-500 border-gray-300"
                     />
                     <span className="text-base font-medium text-gray-800">Select All</span>
                   </div>
-                  <div className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
-                    {getSelectedItems().length} of {(cart.items || []).length} items selected
+                  <div className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full border-gray-200">
+                    {getSelectedItems().length} of {getCartItems().length} items selected
                   </div>
                 </div>
                 <AnimatePresence>
-                  {(cart.items || []).filter(item => item.plant).map((item) => (
+                  {getCartItems().filter(item => item.plant && item.plant._id).map((item) => (
                     <motion.div
                       key={item.plant._id}
                       initial={{ opacity: 0, height: 0 }}
@@ -198,7 +213,7 @@ const Cart = () => {
                           className="h-5 w-5 text-green-600 rounded focus:ring-green-500 border-gray-300"
                         />
                       </div>
-                      <div className="flex-shrink-0 w-24 h-24 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl overflow-hidden border border-gray-200 flex items-center justify-center">
+                      <div className="flex-shrink-0 w-24 h-24 bg-gradient-to-br from-green-100 to-emerald-10 rounded-xl overflow-hidden border border-gray-20 flex items-center justify-center">
                         {item.plant.imageUrl ? (
                           <img
                             src={item.plant.imageUrl}
@@ -208,7 +223,7 @@ const Cart = () => {
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs p-2 text-center">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                           </div>
                         )}
@@ -219,7 +234,7 @@ const Cart = () => {
                         <p className="text-gray-600 text-sm">{item.plant.category}</p>
                         <p className="mt-2 text-xl font-bold text-green-700">
                           ${(item.plant?.price * item.quantity || 0).toFixed(2)}
-                          <span className="text-gray-500 text-sm font-normal ml-2 block">
+                          <span className="text-gray-50 text-sm font-normal ml-2 block">
                             ${(item.plant?.price || 0).toFixed(2)} × {item.quantity}
                           </span>
                         </p>
@@ -291,7 +306,7 @@ const Cart = () => {
               
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-600">Subtotal</span>
+                  <span className="text-gray-600">Subtotal ({getSelectedTotalItems()} items)</span>
                   <span className="font-medium text-gray-900">${getSelectedTotalPrice().toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-gray-100">
@@ -316,7 +331,9 @@ const Cart = () => {
                 onClick={handleCheckout}
                 disabled={isCheckingOut || getSelectedItems().length === 0}
                 className={`w-full py-4 px-4 rounded-xl text-white font-bold text-lg ${
-                  isCheckingOut || getSelectedItems().length === 0 ? 'bg-green-400 cursor-not-allowed' : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+                  isCheckingOut || getSelectedItems().length === 0 
+                    ? 'bg-green-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-green-600 to-emerald-60 hover:from-green-700 hover:to-emerald-700'
                 } transition-all duration-300 shadow-lg shadow-green-500/30`}
               >
                 {isCheckingOut ? (
@@ -327,12 +344,12 @@ const Cart = () => {
                     </svg>
                     Processing...
                   </span>
-                ) : `Proceed to Checkout (${getSelectedItems().length} items)`}
+                ) : `Proceed to Checkout (${getSelectedTotalItems()} items)`}
               </motion.button>
               
               <div className="mt-4 text-center text-sm text-gray-500 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
                 Secure checkout
               </div>

@@ -1,0 +1,41 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: plant-marketplace-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: plant-marketplace-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/leaflink?authSource=admin
+      - JWT_SECRET=your_secure_jwt_secret_for_production
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-dvxfgtdzl}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-358611378774476}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-RUW3a7e1evCuejEGuCBT-X4byQo}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_51QXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
+      - CLIENT_URL=${CLIENT_URL:-http://localhost:3000}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-AIzaSyCwRfAw1a-jGIww8HtOp8kYeORxofrqjF0}
+    volumes:
+      - ./server/uploads:/app/uploads
+
+
+volumes:
+  mongodb_data:

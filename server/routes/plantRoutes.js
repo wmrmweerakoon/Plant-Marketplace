@@ -25,7 +25,7 @@ router.post('/', protect, authorize('seller'), upload.single('image'), async (re
     // Handle image upload to Cloudinary if provided
     if (req.file) {
       try {
-        const result = await uploadImageToCloudinary(req.file.path, 'plant-marketplace/plants');
+        const result = await uploadImageToCloudinary(req.file.path, 'leaflink/plants');
         plantData.imageUrl = result.url;
         plantData.imagePublicId = result.public_id;
       } catch (uploadError) {
@@ -123,7 +123,7 @@ router.delete('/:id', protect, authorize('seller'), async (req, res) => {
         const publicId = imageName.split('.')[0]; // Remove extension
         
         // Attempt to delete from Cloudinary (it's ok if this fails)
-        await deleteImageFromCloudinary(`plant-marketplace/plants/${publicId}`);
+        await deleteImageFromCloudinary(`leaflink/plants/${publicId}`);
       } catch (deleteErr) {
         console.error('Error deleting image from Cloudinary:', deleteErr);
         // Continue with deletion even if Cloudinary delete fails
@@ -173,7 +173,7 @@ router.put('/:id', protect, authorize('seller'), upload.single('image'), async (
           await deleteImageFromCloudinary(plant.imagePublicId);
         }
 
-        const result = await uploadImageToCloudinary(req.file.path, 'plant-marketplace/plants');
+        const result = await uploadImageToCloudinary(req.file.path, 'leaflink/plants');
         updateData.imageUrl = result.url;
         updateData.imagePublicId = result.public_id;
       } catch (uploadError) {

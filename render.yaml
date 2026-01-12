@@ -1,0 +1,36 @@
+services:
+- type: web
+  name: plant-marketplace-backend
+  env: docker
+  region: oregon
+  plan: free
+  healthCheckPath: /api/health
+  disk: null
+  envVars:
+    - key: NODE_ENV
+      value: production
+    - key: PORT
+      value: 10000
+    - key: MONGODB_URI
+      fromDatabase:
+        name: plant-marketplace-db
+        property: connectionString
+    - key: JWT_SECRET
+      generateValue: true
+    - key: CLOUDINARY_CLOUD_NAME
+      sync: false
+    - key: CLOUDINARY_API_KEY
+      sync: false
+    - key: CLOUDINARY_API_SECRET
+      sync: false
+    - key: STRIPE_SECRET_KEY
+      sync: false
+    - key: STRIPE_WEBHOOK_SECRET
+      sync: false
+    - key: CLIENT_URL
+      value: https://plant-marketplace-backend.onrender.com
+
+databases:
+- name: plant-marketplace-db
+  region: oregon
+  plan: free

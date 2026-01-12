@@ -8,6 +8,9 @@ const fs = require('fs');
 // Load environment variables
 dotenv.config();
 
+// Initialize Stripe after environment variables are loaded
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const app = express();
 
 // Create uploads directory if it doesn't exist
@@ -30,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
  */
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/plant-marketplace';
+    const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/leaflink';
     const conn = await mongoose.connect(mongoURI);
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     
@@ -51,6 +54,9 @@ const authRoutes = require('./routes/auth');
 const plantRoutes = require('./routes/plantRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const plantCareRoutes = require('./routes/plantCareRoutes');
 
 /**
  * ROUTES
@@ -72,22 +78,37 @@ app.use('/api/orders', orderRoutes);
 // 5. Cart Routes
 app.use('/api/cart', cartRoutes);
 
+// 6. Admin Routes
+app.use('/api/admin', adminRoutes);
+
+// 7. Payment Routes
+app.use('/api/payment', paymentRoutes);
+
+// 8. Plant Care Routes
+app.use('/api/plant-care', plantCareRoutes);
+
 // Serve static assets if in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
 
-  app.get('*', (req, res) => {
+  // Catch-all route for React Router - handle all non-API routes
+  app.get(/^(?!\/api).+$/, (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
+  });
+
+  // Fallback route for root path
+  app.get('/', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
   });
 }
 
-const PORT = process.env.PORT || 5000; // Standardize to 5000 if not set
+const PORT = process.env.PORT || 5000; // Use Render's PORT environment variable
 
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-  });
+ });
 };
 
 startServer().catch(error => {

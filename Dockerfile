@@ -23,7 +23,7 @@ COPY server/ .
 COPY --from=client-build /app/client/dist ./../client/dist
 
 # Expose the server port (Render will use the PORT environment variable)
-EXPOSE $PORT 5000
+EXPOSE $PORT
 
 # Start the server
 CMD ["node", "server.js"]

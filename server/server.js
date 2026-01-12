@@ -34,7 +34,10 @@ app.use(express.urlencoded({ extended: true }));
 const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/leaflink';
-    const conn = await mongoose.connect(mongoURI);
+    const conn = await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+      socketTimeoutMS: 45000, // Increase socket timeout
+    });
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     
     // Drop the problematic username index if it exists

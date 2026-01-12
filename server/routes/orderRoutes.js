@@ -3,6 +3,7 @@ const router = express.Router();
 const Order = require('../models/Order');
 const Plant = require('../models/Plant');
 const { protect, authorize } = require('../middleware/auth');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // @desc    Create a new order
 // @route   POST /api/orders
@@ -60,14 +61,76 @@ router.post('/', protect, authorize('buyer'), async (req, res) => {
       });
     }
 
-    // Create the order
-    const order = await Order.create({
+    // Prepare order data
+    // Calculate expected delivery date (typically 5-7 business days from order date)
+    const expectedDeliveryDate = new Date();
+    expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7); // 7 days from order date
+
+    const orderData = {
       buyer: req.user._id,
       items,
       totalAmount,
       paymentMethod,
-      shippingAddress
-    });
+      shippingAddress,
+      expectedDeliveryDate,
+      trackingInfo: {
+        status: 'Order Placed',
+        currentLocation: 'Order Processing Center',
+        locationHistory: [{
+          location: 'Order Processing Center',
+          status: 'Order Placed',
+          timestamp: new Date(),
+          notes: 'Order has been placed and is being processed'
+        }]
+      }
+    };
+
+    // For online payments, we'll create a payment intent with Stripe and set initial status
+    if (paymentMethod === 'Online') {
+      try {
+        // Create a payment intent with Stripe
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: Math.round(totalAmount * 100), // Convert to cents
+          currency: 'usd',
+          metadata: {
+            userId: req.user._id.toString(),
+            orderId: 'temp_order_id', // We'll update this after order creation
+            orderItems: JSON.stringify(items)
+          },
+          // Add return URL for redirect after payment
+          return_url: `${process.env.CLIENT_URL || 'http://localhost:3000'}/checkout-success`
+        });
+
+        // Add payment intent information to order data
+        orderData.paymentIntentId = paymentIntent.id;
+        orderData.paymentStatus = 'Pending'; // Payment status starts as Pending
+      } catch (paymentError) {
+        console.error('Payment intent creation error:', paymentError);
+        return res.status(500).json({ success: false, message: 'Error creating payment intent' });
+      }
+    } else {
+      // For COD, payment status is Pending until delivery
+      orderData.paymentStatus = 'Pending';
+    }
+
+    // Create the order
+    const order = await Order.create(orderData);
+
+    // Update the payment intent metadata with the actual order ID after creation
+    if (paymentMethod === 'Online' && order._id) {
+      try {
+        await stripe.paymentIntents.update(order.paymentIntentId, {
+          metadata: {
+            userId: req.user._id.toString(),
+            orderId: order._id.toString(),
+            orderItems: JSON.stringify(items)
+          }
+        });
+      } catch (updateError) {
+        console.error('Error updating payment intent metadata:', updateError);
+        // This is not critical for order creation, we'll continue
+      }
+    }
 
     // Decrease stock for each plant in the order
     for (const item of items) {
@@ -90,7 +153,7 @@ router.post('/', protect, authorize('buyer'), async (req, res) => {
 
 // @desc    Get all orders for a buyer
 // @route   GET /api/orders/my-orders
-// @access  Private (Buyers only)
+// @access Private (Buyers only)
 router.get('/my-orders', protect, authorize('buyer'), async (req, res) => {
   try {
     const orders = await Order.find({ buyer: req.user._id })
@@ -183,6 +246,107 @@ router.put('/:id/status', protect, authorize('seller'), async (req, res) => {
   } catch (error) {
     console.error('Update order status error:', error);
     res.status(500).json({ success: false, message: 'Server error during updating order status' });
+  }
+});
+
+// @desc    Update order tracking information (for sellers)
+// @route   PUT /api/orders/:id/tracking
+// @access  Private (Sellers only, for their plant orders)
+router.put('/:id/tracking', protect, authorize('seller'), async (req, res) => {
+  try {
+    const { expectedDeliveryDate, currentLocation, status, notes } = req.body;
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Verify that the order contains plants from this seller
+    const sellerPlants = await Plant.find({ seller: req.user._id }).select('_id');
+    const sellerPlantIds = sellerPlants.map(plant => plant._id);
+    
+    const orderHasSellerPlants = order.items.some(item => 
+      sellerPlantIds.some(sellerPlantId => sellerPlantId.equals(item.plant))
+    );
+
+    if (!orderHasSellerPlants) {
+      return res.status(403).json({ success: false, message: 'Not authorized to update tracking for this order' });
+    }
+
+    // Update tracking information
+    const updateData = {};
+    
+    if (expectedDeliveryDate) {
+      updateData.expectedDeliveryDate = expectedDeliveryDate;
+    }
+
+    if (currentLocation || status) {
+      if (!updateData.trackingInfo) updateData.trackingInfo = {};
+      
+      if (currentLocation) {
+        updateData.trackingInfo.currentLocation = currentLocation;
+      }
+      
+      if (status) {
+        updateData.trackingInfo.status = status;
+      }
+
+      // Add to location history if status or location is updated
+      if (currentLocation || status) {
+        const locationHistoryItem = {
+          location: currentLocation || order.trackingInfo?.currentLocation || 'Unknown Location',
+          status: status || order.trackingInfo?.status || 'Order Placed',
+          timestamp: new Date(),
+          notes: notes || ''
+        };
+        if (!updateData.trackingInfo.locationHistory) {
+          updateData.trackingInfo.locationHistory = [];
+        }
+        updateData.trackingInfo.locationHistory.push(locationHistoryItem);
+      }
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      data: updatedOrder
+    });
+  } catch (error) {
+    console.error('Update tracking info error:', error);
+    res.status(500).json({ success: false, message: 'Server error during updating tracking information' });
+  }
+});
+
+// @desc    Get order tracking information (for buyers)
+// @route   GET /api/orders/:id/tracking
+// @access  Private (Buyers only, for their own orders)
+router.get('/:id/tracking', protect, authorize('buyer'), async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Verify that the order belongs to this buyer
+    if (order.buyer.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized to view tracking for this order' });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        expectedDeliveryDate: order.expectedDeliveryDate,
+        trackingInfo: order.trackingInfo
+      }
+    });
+  } catch (error) {
+    console.error('Get tracking info error:', error);
+    res.status(500).json({ success: false, message: 'Server error during fetching tracking information' });
   }
 });
 

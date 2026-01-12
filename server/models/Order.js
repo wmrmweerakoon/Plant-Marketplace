@@ -34,6 +34,10 @@ const orderSchema = new mongoose.Schema({
     },
     required: true
   },
+  paymentIntentId: {
+    type: String,
+    // Store Stripe payment intent ID for online payments
+  },
   paymentStatus: {
     type: String,
     enum: {
@@ -50,9 +54,42 @@ const orderSchema = new mongoose.Schema({
     },
     default: 'Processing'
   },
-  shippingAddress: {
+   shippingAddress: {
     type: String,
     required: true
+  },
+  expectedDeliveryDate: {
+    type: Date,
+    // Expected delivery date for the order
+  },
+  trackingInfo: {
+    currentLocation: {
+      type: String,
+      // Current location of the shipment
+    },
+    status: {
+      type: String,
+      enum: {
+        values: ['Order Placed', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'],
+        message: 'Tracking status must be one of: Order Placed, Processing, Shipped, Out for Delivery, Delivered'
+      },
+      default: 'Order Placed'
+    },
+    locationHistory: [{
+      location: {
+        type: String,
+        required: true
+      },
+      status: {
+        type: String,
+        required: true
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now
+      },
+      notes: String
+    }]
   }
 }, {
   timestamps: true

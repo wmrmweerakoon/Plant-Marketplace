@@ -33,9 +33,18 @@ app.use(express.urlencoded({ extended: true }));
  */
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/leaflink';
-    const conn = await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+    // In production (Render), MONGODB_URI must be set
+    if (!process.env.MONGODB_URI) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('❌ MONGODB_URI is required in production but not set. Please configure your database connection in the Render dashboard.');
+      } else {
+        // For local development only
+        process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/leaflink';
+      }
+    }
+    
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 3000, // Increase timeout to 30 seconds
       socketTimeoutMS: 45000, // Increase socket timeout
     });
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);

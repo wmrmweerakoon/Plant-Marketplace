@@ -18,9 +18,10 @@
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.13.2",
     "framer-motion": "^12.24.10",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-router-dom": "^7.12.0",
+    "react-toastify": "^10.0.5",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {

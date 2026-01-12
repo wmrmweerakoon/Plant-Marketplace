@@ -91,18 +91,24 @@ app.use('/api/plant-care', plantCareRoutes);
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
 
- app.get('*', (req, res) => {
+  // Catch-all route for React Router - handle all non-API routes
+  app.get(/^(?!\/api).+$/, (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
+  });
+
+  // Fallback route for root path
+  app.get('/', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
   });
 }
 
-const PORT = process.env.PORT || 5000; // Standardize to 5000 if not set
+const PORT = process.env.PORT || 5000; // Use Render's PORT environment variable
 
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-  });
+ });
 };
 
 startServer().catch(error => {
